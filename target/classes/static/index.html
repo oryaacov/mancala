@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="style.css">
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.min.js"
+      integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+      crossorigin="anonymous">
+    </script>
+    <script
+      src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+      integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+      crossorigin="anonymous">
+    </script>
+    <script src="app.js"></script>
+    <title>MANCALA</title>
+  </head>
+  <body>
+    <div id="wrapper">
+      <header>
+        <nav>
+          <div>
+            <h1>Mancala</h1>
+          </div>
+          <div>
+            <button id="instructions-button">How to Play</button>
+            <button id="start-over">Start Over</button>
+          </div>
+        </nav>
+      </header>
+      <main>
+        <div id="player-1">Player 1</div>
+
+        <div id="board">
+          <div id="col-1">
+            <div id="mancala-1">
+              <div class="player-number">P 1</div>
+            </div>
+          </div>
+
+          <div id="col-2">
+            <div id="row-1">
+            </div>
+            <div id="row-2">
+            </div>
+          </div>
+
+          <div id="col-3">
+            <div id="mancala-2">
+              <div class="player-number">P 2</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="player-2">Player 2</div>
+      </main>
+      <footer>
+        Created by Paige Boyer
+      </footer>
+    </div>
+    <div id="winning-modal">
+      <div id="winning-message">
+        <p>Would you like to play again?</p>
+        <div class="buttons">
+          <button class="button yes">Yes</button>
+          <button class="button no">No</button>
+        </div>
+      </div>
+    </div>
+    <div id="instructions-modal">
+      <div id="instructions">
+        <div id="close-button">
+          <button>Close X</button>
+        </div>
+        <div>
+          <h2><span>How to Play</span></h2>
+          <p><span>Number of players: </span>2</p>
+          <p>
+            <span>Layout: </span>Rectangular board with 2 rows of 6 holes, with one long hole on each side of the rows called the “mancala”.
+          </p>
+          <p>
+            <span>Initial setup: </span>4 marbles are placed in each hole, excluding the mancalas (total of 48 marbles). Players have their own rows (player 1 on top, player 2 on bottom), and their own mancala (player 1 on the left, player 2 on the right).
+          </p>
+          <p>
+            <span>Objective: </span>End with the most marbles in your posession
+          </p>
+          <p><span>Intstructions: </span></p>
+          <ul>
+            <li>
+              During each player’s turn, they will click on one of their holes to distribute the marbles around the board, moving counter-clockwise
+            </li>
+            <li>
+              Marbles will skip over an opponent’s mancala when distributed around the board
+            </li>
+            <li>
+              The game is over when <span>one</span> of the players has no more marbles in any of their holes, excluding the mancala
+            </li>
+            <li>
+              The player with the greater number of marbles in their posession is the winner. Any holes with marbles in them count toward the corresponding player's total at the end of the game.
+            </li>
+          </ul>
+          <p><span>Other Rules: </span></p>
+          <ol>
+            <li>
+              When distributing marbles around the board, if the player places the last marble in one of their own holes, including the mancala, they get to go again
+            </li>
+            <li>
+              When distributing marbles around the board, if the player places the last marble in one of their own holes that was previously empty (excluding the mancala), all of the marbles in the opponent’s adjacent hole are moved into that player’s hole
+            </li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
