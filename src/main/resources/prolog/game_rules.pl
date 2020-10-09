@@ -1,3 +1,4 @@
+%Lihi
 %init the board with the default game values. ([P1_BOARD_VIEW,P2_BOARD_VIEW],F1,F2)
 initBoard([4,4,4,4,4,4,0,4,4,4,4,4,4,0],[4,4,4,4,4,4,0,4,4,4,4,4,4,0],0,0).
 %assign the var ([P1_BOARD_VIEW,P2_BOARD_VIEW],F1,F2) as board
