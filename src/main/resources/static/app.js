@@ -560,21 +560,26 @@ $(() => {
   let currentState = JSON.parse(`{"p1Marbles":[3, 3, 4, 5, 6, 1, 10],"p2Marbels":[1, 3, 5, 3, 1, 0, 12],"nextPlayer":1,"winner":0}`)
 
   const updateBoard = (newState) => {
-    newState = JSON.parse(`{"p1Marbles":[0, 4, 5, 13, 6, 1, 10],"p2Marbels":[0, 4, 5, 3, 1, 0, 12],"nextPlayer": 2,"winner":1}`);
+    newState = JSON.parse(`{"p1Marbles":[0, 4, 5, 13, 6, 1, 10],"p2Marbels":[0, 4, 5, 3, 1, 0, 12],"nextPlayer": 2,"winner":0}`);
 
 
     //  clearBoard();
-    const playerRows = [$("#row-1"), $("#row-2")];
+    const playerRows = ["#row-1","#row-2"];
     for (let playerIndex = 0; playerIndex < 2; playerIndex++) {
       const marbels = playerIndex == 0 ? newState.p1Marbles : newState.p2Marbels;
       for (let i = 0; i < 6; i++) {
         const currentMarblesCount = $(playerRows[playerIndex]).children().eq(i).children('.marble-layer').children().length;
         //add marbles
-        const marbleLayer = $(playerRows[playerIndex]).children().eq(i).children('.marble-layer');
+        let marbleLayer = $(playerRows[playerIndex]).children().eq(i).children('.marble-layer');
         if (currentMarblesCount < marbels[i]) {
-          for (let t = 0; t < marbels[i] - currentMarblesCount; t++) {
+          for (let t = currentMarblesCount; t < marbels[i]; t++) {
+            if (t % 5 == 0) {
+              const $marbleLayer = $('<div>').addClass('marble-layer').css('transform', randomRotate()); // create a new marble layer
+              $(playerRows[playerIndex]).children().eq(i).append($marbleLayer); // add this to the hole
+              marbleLayer = $(playerRows[playerIndex]).children().eq(i).children('.marble-layer');
+            }
             const $marble = $('<div>').addClass('marble').css('background', randomMarbleColor(marbleColors)); // creating marbles
-            marbleLayer.append($marble); // adding marbles to the marble layer
+            marbleLayer.eq(Math.floor(t/5)).append($marble); // adding marbles to the marble layer
           }
           //remove marbles
         } else if (currentMarblesCount > marbels[i]) {
@@ -591,15 +596,15 @@ $(() => {
           playerScoreElement[t].remove();
         }
       } else if (currentPlayerScore < marbels[6]) {
-        
+
         for (let t = 0; t < marbels[6] - currentPlayerScore; t++) {
           const $marble = $('<div>').addClass('marble').css('background', randomMarbleColor(marbleColors)); // creating marbles
           playerScoreElement.append($marble); // adding marbles to the marble layer
         }
       }
     }
-  
-  
+
+
     if (newState.nextPlayer == 1) {
       enablePlayer1();
       currentPlayer = 1;
@@ -647,7 +652,7 @@ $(() => {
     $('#mancala-2').hover(mouseEnterMancala, mouseLeaveMancala);
     const $mancalaLayer2 = $('<div>').addClass('mancala-layer');
     $('#mancala-2').append($mancalaLayer2);
-  
+
     for (let i = 0; i < 6; i++) {
       const $hole = $('<div>').addClass('hole-2'); // creating holes (not the mancala)
       const $hoverNumber = $('<div>').addClass('hover-number');
@@ -664,7 +669,7 @@ $(() => {
     }
   }
 
-  
+
 
   // Event listeners ===========================================
 
