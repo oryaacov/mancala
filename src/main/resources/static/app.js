@@ -316,7 +316,7 @@ $(() => {
     console.log('numMarbles:', numMarbles);
     let limit = null; // create a variable to store the for loop iteration limit
     if (numMarbles > 0 && currentPlayer === 1) { // when the hole is in player 1's row
-    endRow = 1; // the endIndex will be in player 1's row of holes
+      endRow = 1; // the endIndex will be in player 1's row of holes
       if (6 < numMarbles) { // if there are less holes to distribute marbles to, than marbles themselves
         limit = 0; // only distribute the number of marbles that match the number of holes, hold the rest
       }
@@ -395,12 +395,12 @@ $(() => {
       enablePlayer1();
       currentPlayer = 1;
       disablePlayer2();
-      }
-      determineRoundOver();
     }
+    determineRoundOver();
+  }
 
 
- // === Disabling players =====================================
+  // === Disabling players =====================================
   const disablePlayer1 = () => {
     console.log('disablePlayer1');
     // $('#player-1').css('border', 'none');
@@ -507,16 +507,16 @@ $(() => {
   }
 
   // used same function set up seen here: https://raventools.com/blog/create-a-modal-dialog-using-css-and-javascript/
-  const tallyScore = () => {
+  const tallyScore = (winner) => {
     console.log('=== tallyScore ===');
     disablePlayer1();
     disablePlayer2();
     const $p = $('<p>').attr('id', 'winner');
     $('#winning-message').prepend($p);
-    if (player1Marbles > player2Marbles) {
+    if (winner == 1) {
       $p.text('Player 1 is the winner!');
     }
-    else if (player1Marbles < player2Marbles) {
+    else if (winner == 2) {
       $p.text('Player 2 is the winner!');
     }
     else {
@@ -532,7 +532,7 @@ $(() => {
   const newRound = (event) => {
     $('#winning-modal').css('visibility', 'hidden');
     $('#winner').remove();
-    clearBoard();
+    clupdateBoardearBoard();
     createBoard();
     player1Marbles = totalMarbles;
     player2Marbles = totalMarbles;
@@ -557,6 +557,63 @@ $(() => {
     $('.mancala-number').remove();
     console.log('removed mancala-number');
   }
+  let currentState = JSON.parse(`{"p1Marbles":[3, 3, 4, 5, 6, 1, 10],"p2Marbels":[1, 3, 5, 3, 1, 0, 12],"nextPlayer":1,"winner":0}`)
+
+  const updateBoard = (newState) => {
+    newState = JSON.parse(`{"p1Marbles":[0, 4, 5, 13, 6, 1, 10],"p2Marbels":[0, 4, 5, 3, 1, 0, 12],"nextPlayer": 2,"winner":1}`);
+
+
+    //  clearBoard();
+    const playerRows = [$("#row-1"), $("#row-2")];
+    for (let playerIndex = 0; playerIndex < 2; playerIndex++) {
+      const marbels = playerIndex == 0 ? newState.p1Marbles : newState.p2Marbels;
+      for (let i = 0; i < 6; i++) {
+        const currentMarblesCount = $(playerRows[playerIndex]).children().eq(i).children('.marble-layer').children().length;
+        //add marbles
+        const marbleLayer = $(playerRows[playerIndex]).children().eq(i).children('.marble-layer');
+        if (currentMarblesCount < marbels[i]) {
+          for (let t = 0; t < marbels[i] - currentMarblesCount; t++) {
+            const $marble = $('<div>').addClass('marble').css('background', randomMarbleColor(marbleColors)); // creating marbles
+            marbleLayer.append($marble); // adding marbles to the marble layer
+          }
+          //remove marbles
+        } else if (currentMarblesCount > marbels[i]) {
+          const currentMarbles = marbleLayer.children();
+          for (let t = 0; t < currentMarblesCount - marbels[i]; t++) {
+            currentMarbles[t].remove();
+          }
+        }
+      }
+      const currentPlayerScore = $(`#mancala-${playerIndex + 1}`).children('.mancala-layer').children().length;
+      const playerScoreElement = $(`#mancala-${playerIndex + 1}`).children('.mancala-layer');
+      if (currentPlayerScore > marbels[6]) {
+        for (let t = 0; t < currentPlayerScore - marbels[6]; t++) {
+          playerScoreElement[t].remove();
+        }
+      } else if (currentPlayerScore < marbels[6]) {
+        
+        for (let t = 0; t < marbels[6] - currentPlayerScore; t++) {
+          const $marble = $('<div>').addClass('marble').css('background', randomMarbleColor(marbleColors)); // creating marbles
+          playerScoreElement.append($marble); // adding marbles to the marble layer
+        }
+      }
+    }
+  
+  
+    if (newState.nextPlayer == 1) {
+      enablePlayer1();
+      currentPlayer = 1;
+      disablePlayer2();
+    } else {
+      enablePlayer2();
+      currentPlayer = 2;
+      disablePlayer1();
+    }
+    if (newState.winner && newState.winner > 0) {
+      tallyScore(newState.winner);
+    }
+  }
+
 
   const createBoard = () => { // Creating initial mancala board setup
     $('#row-1').empty();
@@ -567,14 +624,15 @@ $(() => {
     $hoverNumberMancala1.text($('#mancala-1').children('.mancala-layer').children().length);
     $('#mancala-1').append($hoverNumberMancala1);
     $('#mancala-1').hover(mouseEnterMancala, mouseLeaveMancala);
-
+    const $mancalaLayer1 = $('<div>').addClass('mancala-layer');
+    $('#mancala-1').append($mancalaLayer1);
     for (let i = 0; i < 6; i++) {
       const $hole = $('<div>').addClass('hole-1'); // creating holes (not the mancala)
       const $hoverNumber = $('<div>').addClass('hover-number');
       $('#row-1').append($hole); // adding holes to the mancala board
       const $marbleLayer = $('<div>').addClass('marble-layer');
       $hole.append($marbleLayer); // adding marble layer to holes
-      for (let j = 0; j < totalMarbles/6; j++) {
+      for (let j = 0; j < totalMarbles / 6; j++) {
         const $marble = $('<div>').addClass('marble').css('background', randomMarbleColor(marbleColors)); // creating marbles
         $marbleLayer.append($marble); // adding marbles to the marble layer
       }
@@ -587,14 +645,16 @@ $(() => {
     $hoverNumberMancala2.text($('#mancala-2').children('.mancala-layer').children().length);
     $('#mancala-2').append($hoverNumberMancala2);
     $('#mancala-2').hover(mouseEnterMancala, mouseLeaveMancala);
-
+    const $mancalaLayer2 = $('<div>').addClass('mancala-layer');
+    $('#mancala-2').append($mancalaLayer2);
+  
     for (let i = 0; i < 6; i++) {
       const $hole = $('<div>').addClass('hole-2'); // creating holes (not the mancala)
       const $hoverNumber = $('<div>').addClass('hover-number');
       $('#row-2').append($hole); // adding holes to the mancala board
       const $marbleLayer = $('<div>').addClass('marble-layer');
       $hole.append($marbleLayer); // adding marble layer to holes
-      for (let j = 0; j < totalMarbles/6; j++) {
+      for (let j = 0; j < totalMarbles / 6; j++) {
         const $marble = $('<div>').addClass('marble').css('background', randomMarbleColor(marbleColors)); // creating marbles
         $marbleLayer.append($marble); // adding marbles to the marble layer
       }
@@ -604,7 +664,7 @@ $(() => {
     }
   }
 
-
+  
 
   // Event listeners ===========================================
 
@@ -622,7 +682,7 @@ $(() => {
 
   createBoard(); // display the board with the initial setup
   determineFirstPlayer(); // pick the first player (player 1)
-
+  updateBoard();
 
 
 }) //end
