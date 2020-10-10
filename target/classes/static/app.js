@@ -45,21 +45,9 @@ $(() => {
   const setVariables = (event) => { // Setting up game logic for a single play
     console.log('=== setVariables  ===');
     const $hole = $(event.currentTarget); // create variable to store the hole that was clicked
-    numMarbles = $hole.children().children().length; // store the number of marbles in the selected hole
-    console.log('numMarbles:', numMarbles);
-    startIndex = $hole.index(); // set the index equal to the location of the selected hole
+    console.log($hole);
     console.log('startIndex:', startIndex);
-    if ($hole.hasClass('hole-1')) {
-      player1Marbles -= numMarbles; // reduce the number of marbles by the amount grabbed
-    }
-    else {
-      player2Marbles -= numMarbles; // reduce the number of marbles by the amount grabbed
-    }
-    console.log('currentPlayer:', currentPlayer);
-    console.log('player1Marbles:', player1Marbles);
-    console.log('player2Marbles:', player2Marbles);
-    console.log('=====================');
-    removeMarbles(event);
+    sendPlayerMove($hole.index(),currentPlayer);
   }
 
 
@@ -316,7 +304,7 @@ $(() => {
     console.log('numMarbles:', numMarbles);
     let limit = null; // create a variable to store the for loop iteration limit
     if (numMarbles > 0 && currentPlayer === 1) { // when the hole is in player 1's row
-    endRow = 1; // the endIndex will be in player 1's row of holes
+      endRow = 1; // the endIndex will be in player 1's row of holes
       if (6 < numMarbles) { // if there are less holes to distribute marbles to, than marbles themselves
         limit = 0; // only distribute the number of marbles that match the number of holes, hold the rest
       }
@@ -354,53 +342,53 @@ $(() => {
     distributeMancalaMarbles(); // go on to distribute marbles to players's mancalas
   }
 
-
-  const determineNextPlayer = () => { // function to determine which player goes next
-    console.log('=== determineNextPlayer ===');
-    console.log('numMarbles:', numMarbles);
-    console.log('player1Marbles:', player1Marbles);
-    console.log('player2Marbles:', player2Marbles);
-    if (currentPlayer === 1 && endRow === 1) { // if player 1's last marble is added to their row
-      if ($('.hole-1').eq(endIndex).children('.marble-layer').children().length === 1 && endIndex !== null) { // if the marble layers of the hole that the last marble was added to are empty and it's not the mancala
-        for (let i = 0; i < $('.hole-2').eq(endIndex).children('.marble-layer').children().length; i++) {
-          checkMarbleLayers(endIndex, '#row-1');
-          player1Marbles++; // increase player 1's total marbles
-          player2Marbles--; // decrease player 2's marbles
-          console.log('player1Marbles:', player1Marbles);
-          console.log('player2Marbles:', player2Marbles);
+  /*
+    const determineNextPlayer = () => { // function to determine which player goes next
+      console.log('=== determineNextPlayer ===');
+      console.log('numMarbles:', numMarbles);
+      console.log('player1Marbles:', player1Marbles);
+      console.log('player2Marbles:', player2Marbles);
+      if (currentPlayer === 1 && endRow === 1) { // if player 1's last marble is added to their row
+        if ($('.hole-1').eq(endIndex).children('.marble-layer').children().length === 1 && endIndex !== null) { // if the marble layers of the hole that the last marble was added to are empty and it's not the mancala
+          for (let i = 0; i < $('.hole-2').eq(endIndex).children('.marble-layer').children().length; i++) {
+            checkMarbleLayers(endIndex, '#row-1');
+            player1Marbles++; // increase player 1's total marbles
+            player2Marbles--; // decrease player 2's marbles
+            console.log('player1Marbles:', player1Marbles);
+            console.log('player2Marbles:', player2Marbles);
+          }
+          $('.hole-2').eq(endIndex).children('.marble-layer').remove(); // remove all marbles from player 2's adjacent hole
         }
-        $('.hole-2').eq(endIndex).children('.marble-layer').remove(); // remove all marbles from player 2's adjacent hole
+        disablePlayer2(); // they get to go again so disable player 2's row
       }
-      disablePlayer2(); // they get to go again so disable player 2's row
-    }
-    else if (currentPlayer === 2 && endRow === 2) { // if player 2's last marble is added to their row
-      if ($('.hole-2').eq(endIndex).children('.marble-layer').children().length === 1 && endIndex !== null) { // if the hole that the last marble was added to was empty and it's not the mancala
-        for (let i = 0; i < $('.hole-1').eq(endIndex).children('.marble-layer').children().length; i++) {
-          checkMarbleLayers(endIndex, '#row-2');
-          player2Marbles++; // increase player 2's total marbles
-          player1Marbles--; // decrease player 1's marbles
-          console.log('player1Marbles:', player1Marbles);
-          console.log('player2Marbles:', player2Marbles);
+      else if (currentPlayer === 2 && endRow === 2) { // if player 2's last marble is added to their row
+        if ($('.hole-2').eq(endIndex).children('.marble-layer').children().length === 1 && endIndex !== null) { // if the hole that the last marble was added to was empty and it's not the mancala
+          for (let i = 0; i < $('.hole-1').eq(endIndex).children('.marble-layer').children().length; i++) {
+            checkMarbleLayers(endIndex, '#row-2');
+            player2Marbles++; // increase player 2's total marbles
+            player1Marbles--; // decrease player 1's marbles
+            console.log('player1Marbles:', player1Marbles);
+            console.log('player2Marbles:', player2Marbles);
+          }
+          $('.hole-1').eq(endIndex).children('.marble-layer').remove(); // remove all marbles from player 1's adjacent hole
         }
-        $('.hole-1').eq(endIndex).children('.marble-layer').remove(); // remove all marbles from player 1's adjacent hole
+        disablePlayer1(); // they get to go again so disable player 1's row
       }
-      disablePlayer1(); // they get to go again so disable player 1's row
-    }
-    else if (currentPlayer === 1) {
-      enablePlayer2();
-      currentPlayer = 2;
-      disablePlayer1();
-    }
-    else {
-      enablePlayer1();
-      currentPlayer = 1;
-      disablePlayer2();
+      else if (currentPlayer === 1) {
+        enablePlayer2();
+        currentPlayer = 2;
+        disablePlayer1();
+      }
+      else {
+        enablePlayer1();
+        currentPlayer = 1;
+        disablePlayer2();
       }
       determineRoundOver();
     }
-
-
- // === Disabling players =====================================
+  
+  */
+  // === Disabling players =====================================
   const disablePlayer1 = () => {
     console.log('disablePlayer1');
     // $('#player-1').css('border', 'none');
@@ -439,84 +427,84 @@ $(() => {
     $('.hole-2').on('click', setVariables); // adding an event listner to all the holes
   }
 
-
-  // === Picking first player ==================================
-  const determineFirstPlayer = () => {
-    currentPlayer = 1;
-    enablePlayer1();
-    disablePlayer2();
-  }
-
-
-  // === Checking if game is over ==============================
-  const determineRoundOver = () => {
-    console.log('=== determineRoundOver ===');
-    console.log('player 1 empty?', checkPlayer1Marbles());
-    console.log('player 2 empty?', checkPlayer2Marbles());
-    if (checkPlayer1Marbles() || checkPlayer2Marbles()) { // Round is over only after all a player's holes are empty
-      determineWinner();
+  
+    // === Picking first player ==================================
+    const determineFirstPlayer = () => {
+      currentPlayer = 1;
+      enablePlayer1();
+      disablePlayer2();
     }
-  }
-
-
-  const checkPlayer1Marbles = () => {
-    console.log('=== checkPlayer1Marbles ===');
-    for (let i = 0; i < $('.hole-1').length; i++) {
-      // console.log($('.hole-1').length);
-      if ($('.hole-1').eq(i).children('.marble-layer').length > 0) { // stop the function once a hole is found not empty
-        return false;
+  /*
+  
+    // === Checking if game is over ==============================
+    const determineRoundOver = () => {
+      console.log('=== determineRoundOver ===');
+      console.log('player 1 empty?', checkPlayer1Marbles());
+      console.log('player 2 empty?', checkPlayer2Marbles());
+      if (checkPlayer1Marbles() || checkPlayer2Marbles()) { // Round is over only after all a player's holes are empty
+        determineWinner();
       }
     }
-    return true; // only return true if all player 1 holes are empty
-  }
-
-
-  const checkPlayer2Marbles = () => {
-    console.log('=== checkPlayer2Marbles ===');
-    for (let i = 0; i < $('.hole-2').length; i++) {
-      if ($('.hole-2').eq(i).children('.marble-layer').length > 0) { // stop the function once a hole is found not empty
-        return false;
+  
+  
+    const checkPlayer1Marbles = () => {
+      console.log('=== checkPlayer1Marbles ===');
+      for (let i = 0; i < $('.hole-1').length; i++) {
+        // console.log($('.hole-1').length);
+        if ($('.hole-1').eq(i).children('.marble-layer').length > 0) { // stop the function once a hole is found not empty
+          return false;
+        }
       }
+      return true; // only return true if all player 1 holes are empty
     }
-    return true; // only return true if all player 2 holes are empty
-  }
-
-
-  // === Determining the winner ================================
-  const determineWinner = () => {
-    console.log('=== determineWinner ===');
-    // if (checkPlayer1Marbles()) {
-    //   console.log('player2Marbles:', player2Marbles);
-    //   $('.hole-2').children().remove();
-    //   $('#mancala-2').children().remove();
-    //   for (let i = 0; i < player2Marbles; i++) {
-    //     const $marble = $('<div>').addClass('marble'); // creating marbles
-    //     $('#mancala-2').append($marble); // adding marbles to the mancala board
-    //   }
-    // }
-    // else {
-    //   console.log('player1Marbles:', player1Marbles);
-    //   $('.hole-1').children().remove();
-    //   $('#mancala-1').children().remove();
-    //   for (let i = 0; i < player1Marbles; i++) {
-    //     const $marble = $('<div>').addClass('marble'); // creating marbles
-    //     $('#mancala-1').append($marble); // adding marbles to the mancala board
-    //   }
-    // }
-    tallyScore();
-  }
+  
+  
+    const checkPlayer2Marbles = () => {
+      console.log('=== checkPlayer2Marbles ===');
+      for (let i = 0; i < $('.hole-2').length; i++) {
+        if ($('.hole-2').eq(i).children('.marble-layer').length > 0) { // stop the function once a hole is found not empty
+          return false;
+        }
+      }
+      return true; // only return true if all player 2 holes are empty
+    }
+  
+  
+    // === Determining the winner ================================
+    const determineWinner = () => {
+      console.log('=== determineWinner ===');
+      // if (checkPlayer1Marbles()) {
+      //   console.log('player2Marbles:', player2Marbles);
+      //   $('.hole-2').children().remove();
+      //   $('#mancala-2').children().remove();
+      //   for (let i = 0; i < player2Marbles; i++) {
+      //     const $marble = $('<div>').addClass('marble'); // creating marbles
+      //     $('#mancala-2').append($marble); // adding marbles to the mancala board
+      //   }
+      // }
+      // else {
+      //   console.log('player1Marbles:', player1Marbles);
+      //   $('.hole-1').children().remove();
+      //   $('#mancala-1').children().remove();
+      //   for (let i = 0; i < player1Marbles; i++) {
+      //     const $marble = $('<div>').addClass('marble'); // creating marbles
+      //     $('#mancala-1').append($marble); // adding marbles to the mancala board
+      //   }
+      // }
+      tallyScore();
+    }*/
 
   // used same function set up seen here: https://raventools.com/blog/create-a-modal-dialog-using-css-and-javascript/
-  const tallyScore = () => {
+  const tallyScore = (winner) => {
     console.log('=== tallyScore ===');
     disablePlayer1();
     disablePlayer2();
     const $p = $('<p>').attr('id', 'winner');
     $('#winning-message').prepend($p);
-    if (player1Marbles > player2Marbles) {
+    if (winner == 1) {
       $p.text('Player 1 is the winner!');
     }
-    else if (player1Marbles < player2Marbles) {
+    else if (winner == 2) {
       $p.text('Player 2 is the winner!');
     }
     else {
@@ -532,7 +520,7 @@ $(() => {
   const newRound = (event) => {
     $('#winning-modal').css('visibility', 'hidden');
     $('#winner').remove();
-    clearBoard();
+    clupdateBoardearBoard();
     createBoard();
     player1Marbles = totalMarbles;
     player2Marbles = totalMarbles;
@@ -557,6 +545,68 @@ $(() => {
     $('.mancala-number').remove();
     console.log('removed mancala-number');
   }
+  let currentState = JSON.parse(`{"p1Marbles":[3, 3, 4, 5, 6, 1, 10],"p2Marbels":[1, 3, 5, 3, 1, 0, 12],"nextPlayer":1,"winner":0}`)
+
+  const updateBoard = (newState) => {
+  //  newState = JSON.parse(`{"p1Marbles":[0, 4, 5, 13, 6, 1, 10],"p2Marbels":[0, 4, 5, 3, 1, 0, 12],"nextPlayer": 2,"winner":0}`);
+
+
+    const playerRows = ["#row-1", "#row-2"];
+    for (let playerIndex = 0; playerIndex < 2; playerIndex++) {
+      const marbels = playerIndex == 0 ? newState.p1Marbles : newState.p2Marbels;
+      for (let i = 0; i < 6; i++) {
+        const currentMarblesCount = $(playerRows[playerIndex]).children().eq(i).children('.marble-layer').children().length;
+        //add marbles
+        let marbleLayer = $(playerRows[playerIndex]).children().eq(i).children('.marble-layer');
+        if (currentMarblesCount < marbels[i]) {
+          for (let t = currentMarblesCount; t < marbels[i]; t++) {
+            if (t % 5 == 0) {
+              const $marbleLayer = $('<div>').addClass('marble-layer').css('transform', randomRotate()); // create a new marble layer
+              $(playerRows[playerIndex]).children().eq(i).append($marbleLayer); // add this to the hole
+              marbleLayer = $(playerRows[playerIndex]).children().eq(i).children('.marble-layer');
+            }
+            const $marble = $('<div>').addClass('marble').css('background', randomMarbleColor(marbleColors)); // creating marbles
+            marbleLayer.eq(Math.floor(t / 5)).append($marble); // adding marbles to the marble layer
+          }
+          //remove marbles
+        } else if (currentMarblesCount > marbels[i]) {
+          const currentMarbles = marbleLayer.children();
+          for (let t = 0; t < currentMarblesCount - marbels[i]; t++) {
+            currentMarbles[t].remove();
+          }
+        }
+      }
+      const currentPlayerScore = $(`#mancala-${playerIndex + 1}`).children('.mancala-layer').children().length;
+      const playerScoreElement = $(`#mancala-${playerIndex + 1}`).children('.mancala-layer');
+      if (currentPlayerScore > marbels[6]) {
+        for (let t = 0; t < currentPlayerScore - marbels[6]; t++) {
+          playerScoreElement[t].remove();
+        }
+      } else if (currentPlayerScore < marbels[6]) {
+
+        for (let t = 0; t < marbels[6] - currentPlayerScore; t++) {
+          const $marble = $('<div>').addClass('marble').css('background', randomMarbleColor(marbleColors)); // creating marbles
+          playerScoreElement.append($marble); // adding marbles to the marble layer
+        }
+      }
+    }
+
+
+    if (newState.nextPlayer == 1) {
+      enablePlayer1();
+      currentPlayer = 1;
+      disablePlayer2();
+    } else {
+      enablePlayer2();
+      currentPlayer = 2;
+      disablePlayer1();
+      getNextState();
+    }
+    if (newState.winner && newState.winner > 0) {
+      tallyScore(newState.winner);
+    }
+  }
+
 
   const createBoard = () => { // Creating initial mancala board setup
     $('#row-1').empty();
@@ -567,14 +617,15 @@ $(() => {
     $hoverNumberMancala1.text($('#mancala-1').children('.mancala-layer').children().length);
     $('#mancala-1').append($hoverNumberMancala1);
     $('#mancala-1').hover(mouseEnterMancala, mouseLeaveMancala);
-
+    const $mancalaLayer1 = $('<div>').addClass('mancala-layer');
+    $('#mancala-1').append($mancalaLayer1);
     for (let i = 0; i < 6; i++) {
       const $hole = $('<div>').addClass('hole-1'); // creating holes (not the mancala)
       const $hoverNumber = $('<div>').addClass('hover-number');
       $('#row-1').append($hole); // adding holes to the mancala board
       const $marbleLayer = $('<div>').addClass('marble-layer');
       $hole.append($marbleLayer); // adding marble layer to holes
-      for (let j = 0; j < totalMarbles/6; j++) {
+      for (let j = 0; j < totalMarbles / 6; j++) {
         const $marble = $('<div>').addClass('marble').css('background', randomMarbleColor(marbleColors)); // creating marbles
         $marbleLayer.append($marble); // adding marbles to the marble layer
       }
@@ -587,6 +638,8 @@ $(() => {
     $hoverNumberMancala2.text($('#mancala-2').children('.mancala-layer').children().length);
     $('#mancala-2').append($hoverNumberMancala2);
     $('#mancala-2').hover(mouseEnterMancala, mouseLeaveMancala);
+    const $mancalaLayer2 = $('<div>').addClass('mancala-layer');
+    $('#mancala-2').append($mancalaLayer2);
 
     for (let i = 0; i < 6; i++) {
       const $hole = $('<div>').addClass('hole-2'); // creating holes (not the mancala)
@@ -594,7 +647,7 @@ $(() => {
       $('#row-2').append($hole); // adding holes to the mancala board
       const $marbleLayer = $('<div>').addClass('marble-layer');
       $hole.append($marbleLayer); // adding marble layer to holes
-      for (let j = 0; j < totalMarbles/6; j++) {
+      for (let j = 0; j < totalMarbles / 6; j++) {
         const $marble = $('<div>').addClass('marble').css('background', randomMarbleColor(marbleColors)); // creating marbles
         $marbleLayer.append($marble); // adding marbles to the marble layer
       }
@@ -622,7 +675,45 @@ $(() => {
 
   createBoard(); // display the board with the initial setup
   determineFirstPlayer(); // pick the first player (player 1)
-
+  //updateBoard();
 
 
 }) //end
+
+const getNextState=()=>{
+  $.ajax({
+    url: '/api/move',
+    type: 'get',
+    dataType: 'json',
+    contentType: 'application/json',
+    success: function (data) {
+      updateBoard(JSON.parse(data));
+    },
+    error: function (err) {
+      console.log(err);
+    },
+    data: JSON.stringify(data)
+  });
+}
+
+const sendPlayerMove = (hole, player) => {
+  const data = {
+    player: player,
+    hole: hole
+  }
+  $.ajax({
+    url: '/api/move',
+    type: 'post',
+    dataType: 'json',
+    contentType: 'application/json',
+    success: function (data) {
+      console.log("sent",data);
+      updateBoard(JSON.parse(data));
+    },
+    error: function (err) {
+      console.log(err);
+    },
+    data: JSON.stringify(data)
+  });
+
+}
