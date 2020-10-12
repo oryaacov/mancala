@@ -47,7 +47,7 @@ $(() => {
     const $hole = $(event.currentTarget); // create variable to store the hole that was clicked
     console.log($hole);
     console.log('startIndex:', startIndex);
-    sendPlayerMove($hole.index(),currentPlayer);
+    sendPlayerMove($hole.index(), currentPlayer);
   }
 
 
@@ -427,13 +427,13 @@ $(() => {
     $('.hole-2').on('click', setVariables); // adding an event listner to all the holes
   }
 
-  
-    // === Picking first player ==================================
-    const determineFirstPlayer = () => {
-      currentPlayer = 1;
-      enablePlayer1();
-      disablePlayer2();
-    }
+
+  // === Picking first player ==================================
+  const determineFirstPlayer = () => {
+    currentPlayer = 1;
+    enablePlayer1();
+    disablePlayer2();
+  }
   /*
   
     // === Checking if game is over ==============================
@@ -548,9 +548,6 @@ $(() => {
   let currentState = JSON.parse(`{"p1Marbles":[3, 3, 4, 5, 6, 1, 10],"p2Marbels":[1, 3, 5, 3, 1, 0, 12],"nextPlayer":1,"winner":0}`)
 
   const updateBoard = (newState) => {
-  //  newState = JSON.parse(`{"p1Marbles":[0, 4, 5, 13, 6, 1, 10],"p2Marbels":[0, 4, 5, 3, 1, 0, 12],"nextPlayer": 2,"winner":0}`);
-
-
     const playerRows = ["#row-1", "#row-2"];
     for (let playerIndex = 0; playerIndex < 2; playerIndex++) {
       const marbels = playerIndex == 0 ? newState.p1Marbles : newState.p2Marbels;
@@ -600,13 +597,44 @@ $(() => {
       enablePlayer2();
       currentPlayer = 2;
       disablePlayer1();
-      getNextState();
     }
     if (newState.winner && newState.winner > 0) {
       tallyScore(newState.winner);
     }
   }
+  const handleSuccessResponse = (res, i) => {
 
+    setTimeout(() => {
+      if (!res || res.length <= 0 || i >= res.length) {
+        console.log("done", res, i);
+        return
+      }
+
+      handleSuccessResponse(res, i + 1);
+    },  Math.random()*3000);
+    updateBoard(res[i]);
+  }
+
+  const sendPlayerMove = (hole, player) => {
+    var instance = this;
+    const data = {
+      player: player,
+      hole: hole
+    }
+    $.ajax({
+      url: `/play?player=${player}&move=${hole}`,
+      type: 'get',
+      contentType: 'application/json',
+      success: function (data) {
+        handleSuccessResponse(data, 0, instance);
+      },
+      error: function (err) {
+        console.log(err);
+      },
+
+    });
+
+  }
 
   const createBoard = () => { // Creating initial mancala board setup
     $('#row-1').empty();
@@ -680,40 +708,3 @@ $(() => {
 
 }) //end
 
-const getNextState=()=>{
-  $.ajax({
-    url: '/api/move',
-    type: 'get',
-    dataType: 'json',
-    contentType: 'application/json',
-    success: function (data) {
-      updateBoard(JSON.parse(data));
-    },
-    error: function (err) {
-      console.log(err);
-    },
-    data: JSON.stringify(data)
-  });
-}
-
-const sendPlayerMove = (hole, player) => {
-  const data = {
-    player: player,
-    hole: hole
-  }
-  $.ajax({
-    url: '/api/move',
-    type: 'post',
-    dataType: 'json',
-    contentType: 'application/json',
-    success: function (data) {
-      console.log("sent",data);
-      updateBoard(JSON.parse(data));
-    },
-    error: function (err) {
-      console.log(err);
-    },
-    data: JSON.stringify(data)
-  });
-
-}

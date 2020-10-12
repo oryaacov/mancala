@@ -3,7 +3,10 @@ package edu.mancala;
 import org.jpl7.*;
 import org.jpl7.fli.Prolog;
 
+import java.lang.Integer;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 public class PrologEngine {
@@ -15,23 +18,23 @@ public class PrologEngine {
         Atom filePath = new Atom(path);
         //String s = "consult('lib\rules.pl')";
         Query consult_query
-                = new Query(new Compound( "consult",new Term[]{new Atom(path)}));
+                = new Query(new Compound("consult", new Term[]{new Atom(path)}));
 
         boolean consulted = consult_query.hasSolution();
 
         if (!consulted) {
-            throw new Exception("failed to load prolog file:"+path);
+            throw new Exception("failed to load prolog file:" + path);
         }
         Query q4 =
                 new Query(new Compound("father", new Term[]
-                        { new Variable("X"), new Variable("Y")}));
+                        {new Variable("X"), new Variable("Y")}));
 
-        if (q4.hasSolution()){
-            while ( q4.hasMoreSolutions() ){
-                Map<String, Term> res= q4.nextSolution();
-                System.out.println( "X = " + res.get("X"));
-                System.out.println( "Y = " + res.get("Y"));
-                System.out.println( "------------");
+        if (q4.hasSolution()) {
+            while (q4.hasMoreSolutions()) {
+                Map<String, Term> res = q4.nextSolution();
+                System.out.println("X = " + res.get("X"));
+                System.out.println("Y = " + res.get("Y"));
+                System.out.println("------------");
 
             }
         }
@@ -57,21 +60,35 @@ public class PrologEngine {
             System.out.println("No explicit initialization done: no SWI_HOME_DIR, SWI_EXEC_FILE, or SWIPL_BOOT_FILE defined");
         try {
             JPL.init();
-        }
-        catch (Exception ex){
+        } catch (Exception ex) {
             System.out.println(ex);
             throw ex;
         }
         System.out.println("Prolog engine actual init args: " + Arrays.toString(Prolog.get_actual_init_args()));
     }
 
+    public static List<GameState> GetNextGameStates(Integer move,Integer player) {
+        LinkedList<GameState> res = new LinkedList<GameState>();
+        GameState hardCoded1 = new GameState();
+        GameState hardCoded2 = new GameState();
+        hardCoded1.nextPlayer=1;
+        hardCoded1.p1Marbles=new LinkedList<Integer>(Arrays.asList(0,3,6,7,1,2,15));
+        hardCoded1.p2Marbels=new LinkedList<Integer>(Arrays.asList(0,0,1,9,0,0,5));
+        hardCoded1.winner=0;
+        hardCoded2.nextPlayer=2;
+        hardCoded2.p1Marbles=new LinkedList<Integer>(Arrays.asList(1,4,7,8,2,3,16));
+        hardCoded2.p2Marbels=new LinkedList<Integer>(Arrays.asList(1,1,2,10,1,1,6));
+        hardCoded2.winner=0;
+        res.add(hardCoded1);
+        res.add(hardCoded2);
+        return res;
+    }
 
-
-    public static PrologEngine GetEngine(){
+    public static PrologEngine GetEngine() {
         if (_instance == null) {
             synchronized (object) {
                 if (_instance == null) {
-                    _instance  = new PrologEngine();
+                    _instance = new PrologEngine();
                 }
             }
         }

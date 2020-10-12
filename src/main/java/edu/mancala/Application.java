@@ -2,9 +2,15 @@ package edu.mancala;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
+import java.util.Optional;
 
 @SpringBootApplication
 @RestController
@@ -32,9 +38,15 @@ public class Application {
     }
 
 
-    @RequestMapping("/api")
-    String api() {
+    @RequestMapping(value = "/play",method = RequestMethod.GET,produces =  MediaType.APPLICATION_JSON_VALUE)
+    List<GameState> PlayMove(
+            @RequestParam(value = "player",required = true) Integer player,
+            @RequestParam(value = "move", required = true) Integer move) {
+            //get new state from prolog engine
+            System.out.println(String.format("player:%d move:%d",player,move));
+            return PrologEngine.GetNextGameStates(player, move);
 
-        return "hey baby this is api";
+
     }
+
 }
