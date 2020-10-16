@@ -61,6 +61,17 @@ getCurrentPlayersScore(Board,Sum):-
 getOtherPlayerScore(Board,Sum):-
     Board = [_,_,_,_,_,_,_,_,_,_,_,_,_,Sum].
 
+%return the current player holes seed count (the player which is playing in the current turn)
+%--------------Checked------------------
+getCurrentPlayersScore(Board,Sum):-
+    Board = [Hole1,Hole2,Hole3,Hole4,Hole5,Hole6,_,_,_,_,_,_,_,_],
+    Sum is Hole1+Hole2+Hole3+Hole4+Hole5+Hole6.
+%return the rival holes seed count (the player which isn't playing in the current turn)
+%--------------Checked------------------
+getOtherPlayerScore(Board,Sum):-
+    Board = [_,_,_,_,_,_,_,Hole1,Hole2,Hole3,Hole4,Hole5,Hole6,_],
+    Sum is Hole1+Hole2+Hole3+Hole4+Hole5+Hole6.
+
 %return the amount of seeds "Guma"'s index
 %Index should be mod 14
 %--------------Checked------------------
