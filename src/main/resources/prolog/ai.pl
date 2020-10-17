@@ -12,26 +12,23 @@ earnerHeuristic(CurrentBoard,NextBoard,Res):-
 % the weaker heuristic focus on the player steeling seeds.
 % count the river seeds and devided by the total seeds count
 weakerHeuristic(CurrentBoard,NextBoard,Res):-
-    getOtherPlayerScore(CurrentBoard,CurrentCount),
-    getOtherPlayerScore(NextBoard,NextCountCount),
-    Res is NextCountCount-CurrentCount.
+    getCurrentPlayerMarblesCount(CurrentBoard,CurrentCount),
+    getOtherPlayerMarblesCount(NextBoard,NextCountCount),
+    Temp is CurrentCount-NextCountCount,
+    (Temp>0,Res is Temp;
+    Res is 0).
 
-% the acer heuristic focus on the player steeling seeds.
-% count the river seeds and devided by the total seeds count
-acerHeuristic(Board,Res):-
-    getOtherPlayerScore(Board,Count),
-    totalSeedsCount(TotalSeeds),
-    Res is Temp/TotalSeeds.
 
 % the escaper heuristic focus on the player steeling seeds.
 % count the river seeds and devided by the total seeds count
 escaperHeuristic(Board,Res):-
     countEmptyHoles(Board,0,EmptyBoards),
-    Res is 6-EmptyBoards.
+    Res is -1*EmptyBoards.
 
-countEmptyHoles(_,7,0).
+countEmptyHoles(_,6,0).
 countEmptyHoles([Hole|Board],Index,Res):-
-    countEmptyHoles(Board,Index+1,Temp),
+    NewIndex is Index+1,
+    countEmptyHoles(Board,NewIndex,Temp),
     (Hole =:= 0, Res is Temp+1;
     Res is Temp).
 
