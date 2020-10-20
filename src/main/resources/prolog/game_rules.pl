@@ -52,20 +52,28 @@ getMoves(_,[],7).
 calcSeeds(N,Board,Index,NewBoard):-
     Div is N div 14,
     Mod is N mod 14,
-    addSeeds(Div,Mod,Board,Index,NewBoard).
+    Sub is 14 - Index,
+    Add2Sub is Mod - Sub,
+    addSeeds(Div,Mod,Add2Sub,Board,Index,NewBoard).
 %add the seeds from the current "guma" into all of the others
 %Add2All = How many to add to all the "Gumot".
 %AddOne2 = Add one seed to "Gumot" 1 to AddOne2 index.
 %-------------Checked--------------------------
-addSeeds(Add2All,AddOne2,[G|Gs],Index,[NG|NGs]):-
-    ((AddOne2 > 0,Index =< 0,NG is G+Add2All+1);
-    (AddOne2 =< 0,Index =< 0,NG is G+Add2All);
-    (AddOne2 > 0,Index > 0,NG is G+Add2All);
-    (AddOne2 =< 0,Index > 0,NG is G+Add2All-1)),
-    Add is AddOne2-1,
-    I is Index-1,
-    addSeeds(Add2All,Add,Gs,I,NGs).
-addSeeds(_,_,[],_,[]).
+addSeeds(Add2All,AddOne2,Add2Sub,[G|Gs],Index,[NG|NGs]):-
+    ((Add2Sub > 0,Index = 1,NG is Add2All+1);
+    (Add2Sub < 0,Index = 1,NG is Add2All);
+    (Add2Sub > 0,AddOne2 > 0,Index < 1,NG is G+Add2All+1+1);
+    (Add2Sub > 0,AddOne2 =< 0,Index < 1,NG is G+Add2All+1);
+    (Add2Sub > 0,AddOne2 > 0,Index > 1,NG is G+Add2All+1);
+    (Add2Sub > 0,AddOne2 =< 0,Index > 1,NG is G+Add2All+1);
+    (Add2Sub =< 0,AddOne2 > 0,Index < 1,NG is G+Add2All+1);
+    (Add2Sub =< 0,AddOne2 =< 0,Index < 1,NG is G+Add2All);
+    (Add2Sub =< 0,AddOne2 > 0,Index > 1,NG is G+Add2All);
+    (Add2Sub =< 0,AddOne2 =< 0,Index > 1,NG is G+Add2All)),
+    ((Index < 1,Add is AddOne2-1);(Index >= 1,Add is AddOne2)),
+    I is Index-1,Sub is Add2Sub-1,
+    addSeeds(Add2All,Add,Sub,Gs,I,NGs).
+addSeeds(_,_,_,[],_,[]).
 
 %return the current scored seeds (the player which is playing in the current turn)
 %--------------Checked------------------
@@ -75,17 +83,6 @@ getCurrentPlayersScore(Board,Sum):-
 %--------------Checked------------------
 getOtherPlayerScore(Board,Sum):-
     Board = [_,_,_,_,_,_,_,_,_,_,_,_,_,Sum].
-
-%return the current player holes seed count (the player which is playing in the current turn)
-%--------------Checked------------------
-getCurrentPlayerMarblesCount(Board,Sum):-
-    Board = [Hole1,Hole2,Hole3,Hole4,Hole5,Hole6,_,_,_,_,_,_,_,_],
-    Sum is Hole1+Hole2+Hole3+Hole4+Hole5+Hole6.
-%return the rival holes seed count (the player which isn't playing in the current turn)
-%--------------Checked------------------
-getOtherPlayerMarblesCount(Board,Sum):-
-    Board = [_,_,_,_,_,_,_,Hole1,Hole2,Hole3,Hole4,Hole5,Hole6,_],
-    Sum is Hole1+Hole2+Hole3+Hole4+Hole5+Hole6.
 
 %return the amount of seeds "Guma"'s index
 %Index should be mod 14
@@ -110,15 +107,15 @@ updateFinal([F|Board],Sum2Add,1,[NF|Board]):-
 %Applying end of game rules (currently counting the unfinished player seeds and add them into his sum)
 %start T with 1
 %we will send the other player's board we know the other one is empty.
-%---needs to be checked-------
+%----------checked----------
+endGameSequence(_,0,8).
 endGameSequence([B|Bs],Sum,T):-
     T=<7,
-    S is B+Sum,
     T1 is T+1,
-    endGameSequence(Bs,S,T1).
-endGameSequence(_,0,7).
+    endGameSequence(Bs,S,T1),Sum is B+S.
+%----------Checked--------------
 endGame(Board,NewBoard):-
-    endGameSequence(Board,Sum,1),updateFinal(Board,Sum,14,NewBoard).
+    endGameSequence(Board,Sum,1),updateFinal(Board,Sum,7,NewBoard).
 
 %Move - the current move choosen by the alpha beta algorithm
 %Index - the current index
@@ -127,21 +124,21 @@ endGame(Board,NewBoard):-
 executeMove(Move,Board,UpdatedBoard,ChangeTurn):-
     getAmountInIndex(Board,Move,Amnt),
     calcSeeds(Amnt,Board,Move,NewBoard),
-    ((S is Move + Amnt,S = 7, ChangeTurn is 0,UpdatedBoard is NewBoard);
-    (getAmountInIndex(NewBoard,Move,1),ChangeTurn is 1, zeroInIndex(NewBoard,Move+8,UpdatedBoard)) ;
-    (ChangeTurn is 1,UpdatedBoard is NewBoard)).
+    ((S is ((Move + Amnt) mod 14),S = 7, ChangeTurn is 0,UpdatedBoard = NewBoard);
+    (getAmountInIndex(NewBoard,Move,1),getAmountInIndex(Board,Move,0),ChangeTurn is 1, zeroInIndex(NewBoard,Move+7,UpdatedBoard)) ;
+    (ChangeTurn is 1,UpdatedBoard = NewBoard)).
 
 %Can we randomize this?
 chooseFirstPlayer(1).
 %should be Alpha-Beta
 chooseMove([M|_],Move):-
     Move is M.
- %startGame predicate: start with first player(random?) possibleMoves,
- %for now choose the first move and execute move. according to ChangeTurn we will change turn and change the player and board
- %continue as before.we will continue like this until there is no more moves (ms =[]) , run end sequence and check who is the winner.
+
 startGame:-
          chooseFirstPlayer(P),initBoard(Board,_,_,_),assert(state(Board,Board,-1,1)),play(P,Board).
 %---needs to be checked-------
+%make a change to be different for human player(1) and Computer(2)
+%comp needs to be recursive and player needs to be called from ui.
 play(P,Board):-
     possibleMoves(Board,Moves),
     ((Moves = [],getNextPlayerBoard(Board,Next),endGame(Next,New),winnerB(New,W),retractall(state(_,_,_,_)),assert(state(Board,Board,W,W)));
