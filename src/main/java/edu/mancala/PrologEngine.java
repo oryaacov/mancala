@@ -13,32 +13,17 @@ public class PrologEngine {
     private static PrologEngine _instance = null;
     private static Object object = new Object();
 
-    public void loadFile(String path) throws Exception {
-        System.out.println(path);
-        Atom filePath = new Atom(path);
-        //String s = "consult('lib\rules.pl')";
-        Query consult_query
-                = new Query(new Compound("consult", new Term[]{new Atom(path)}));
-
-        boolean consulted = consult_query.hasSolution();
-
-        if (!consulted) {
-            throw new Exception("failed to load prolog file:" + path);
-        }
-        Query q4 =
-                new Query(new Compound("father", new Term[]
-                        {new Variable("X"), new Variable("Y")}));
-
-        if (q4.hasSolution()) {
-            while (q4.hasMoreSolutions()) {
-                Map<String, Term> res = q4.nextSolution();
-                System.out.println("X = " + res.get("X"));
-                System.out.println("Y = " + res.get("Y"));
-                System.out.println("------------");
-
+    public void loadFiles(List<String> paths) throws Exception {
+        for (String path : paths ) {
+            Atom filePath = new Atom(path);
+            //String s = "consult('lib\rules.pl')";
+            Query consultQuery = new Query(new Compound("consult", new Term[]{new Atom(path)}));
+            if (!consultQuery.hasSolution()) {
+                throw new Exception("failed to load prolog file:" + path);
+            }else{
+                System.out.println(path+ " loaded");
             }
         }
-
     }
 
     private PrologEngine() {
@@ -65,6 +50,37 @@ public class PrologEngine {
             throw ex;
         }
         System.out.println("Prolog engine actual init args: " + Arrays.toString(Prolog.get_actual_init_args()));
+    }
+
+    public static List<GameState> PlayMove(int move) {
+        Query moveQuery
+                = new Query(new Compound("play", new Term[]{new org.jpl7.Integer(move)}));
+        //execute the move
+        List<Map<String, Term>> results = new LinkedList<Map<String, Term>>();
+        if (moveQuery.hasSolution()) {
+            while (moveQuery.hasMoreSolutions()) {
+                results.add(moveQuery.nextSolution());
+            }
+        }
+        System.out.println(results);
+        return null;
+    }
+
+    public static List<GameState>  StartGame(int player) throws Exception {
+        if (player != 1 && player!=2){
+            throw  new Exception("invalid player");
+        }
+        Query moveQuery
+                = new Query(new Compound("startGame", new Term[]{new org.jpl7.Integer(player)}));
+        //execute the move
+        List<Map<String, Term>> results = new LinkedList<Map<String, Term>>();
+        if (moveQuery.hasSolution()) {
+            while (moveQuery.hasMoreSolutions()) {
+                results.add(moveQuery.nextSolution());
+            }
+        }
+        System.out.println(results);
+        return null;
     }
 
     public static List<GameState> GetNextGameStates(Integer move,Integer player) {
@@ -96,3 +112,16 @@ public class PrologEngine {
     }
 
 }
+/*Query q4 =
+                new Query(new Compound("father", new Term[]
+                        {new Variable("X"), new Variable("Y")}));
+
+        if (q4.hasSolution()) {
+            while (q4.hasMoreSolutions()) {
+                Map<String, Term> res = q4.nextSolution();
+                System.out.println("X = " + res.get("X"));
+                System.out.println("Y = " + res.get("Y"));
+                System.out.println("------------");
+
+            }
+        }*/

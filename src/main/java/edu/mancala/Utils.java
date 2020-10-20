@@ -1,12 +1,16 @@
 package edu.mancala;
 
 import java.io.File;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Utils {
-    public static  String GetResourcePath(String resource){
-        ClassLoader classLoader = Application.class.getClassLoader();
-        File file = new File(classLoader.getResource(resource).getFile());
-        return file.getPath();
-
+    public static List<String> GetResourcePath(List<String> resources){
+        List<String> result = new LinkedList<>();
+        for (String resource:resources) {
+            ClassLoader classLoader = Application.class.getClassLoader();
+          result.add(new File(classLoader.getResource(resource).getFile()).getPath());
+        }
+        return result;
     }
 }

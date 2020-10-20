@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +30,8 @@ public class Application {
     public static void initProlog(){
         try {
             prologEngine = PrologEngine.GetEngine();
-            prologEngine.loadFile(Utils.GetResourcePath("prolog/main.pl"));
+            prologEngine.loadFiles(Utils.GetResourcePath(Arrays.asList(
+                    "prolog/game_rules.pl","prolog/utils.pl","prolog/ai.pl")));
         }catch (Exception ex){
             System.out.println("failed to init prolog");
             System.out.println(ex);
@@ -44,9 +46,7 @@ public class Application {
             @RequestParam(value = "move", required = true) Integer move) {
             //get new state from prolog engine
             System.out.println(String.format("player:%d move:%d",player,move));
-            return PrologEngine.GetNextGameStates(player, move);
-
-
+            return PrologEngine.PlayMove(move);
     }
 
 }
