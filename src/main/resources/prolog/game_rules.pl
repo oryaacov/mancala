@@ -120,12 +120,13 @@ endGame(Board,NewBoard):-
 %Move - the current move choosen by the alpha beta algorithm
 %Index - the current index
 %ChangeTurn = 0 player will have another turn ChangeTurn = 1 need to change player.
-%---needs to be checked-------
+%-----------checked-------
 executeMove(Move,Board,UpdatedBoard,ChangeTurn):-
     getAmountInIndex(Board,Move,Amnt),
     calcSeeds(Amnt,Board,Move,NewBoard),
-    ((S is ((Move + Amnt) mod 14),S = 7, ChangeTurn is 0,UpdatedBoard = NewBoard);
-    (getAmountInIndex(NewBoard,Move,1),getAmountInIndex(Board,Move,0),ChangeTurn is 1, zeroInIndex(NewBoard,Move+7,UpdatedBoard)) ;
+    ((S is Move+Amnt,LastIndex is S mod 14,LastIndex = 7, ChangeTurn is 0,UpdatedBoard = NewBoard);
+    (S is Move+Amnt,LastIndex is S mod 14,getAmountInIndex(NewBoard,LastIndex,1),getAmountInIndex(Board,LastIndex,0),
+         ChangeTurn is 1,getAmountInIndex(Board,LastIndex+7,A), zeroInIndex(NewBoard,LastIndex+7,NB),updateFinal(NB,(A+1),7,NB1),zeroInIndex(NB1,LastIndex,UpdatedBoard));
     (ChangeTurn is 1,UpdatedBoard = NewBoard)).
 
 %Can we randomize this?
@@ -134,7 +135,7 @@ chooseFirstPlayer(1).
 chooseMove([M|_],Move):-
     Move is M.
 
-startGame:-
+startGame(P):-
          chooseFirstPlayer(P),initBoard(Board,_,_,_),assert(state(Board,Board,-1,1)),play(P,Board).
 %---needs to be checked-------
 %make a change to be different for human player(1) and Computer(2)
@@ -149,3 +150,4 @@ play(P,Board):-
 
 
 
+%trace, (executeMove(5,[1,2,3,4,5,6,7,0,0,0,11,0,0,14],New,CT)).
