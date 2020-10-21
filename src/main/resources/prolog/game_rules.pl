@@ -111,7 +111,7 @@ updateFinal([B|Board],Sum2Add,Index,[B|NewBoard]):-
 updateFinal([F|Board],Sum2Add,1,[NF|Board]):-
     NF is F + Sum2Add.
 
-%Applying end of game rules (currently counting the unfinished player seeds and add them into his sum)
+%Applying end of game rules (currestantly counting the unfinished player seeds and add them into his sum)
 %start T with 1
 %we will send the other player's board we know the other one is empty.
 %----------checked----------
@@ -142,8 +142,8 @@ chooseFirstPlayer(1).
 chooseMove([M|_],Move):-
     Move is M.
 
-startGame(P):-
-         initBoard(Board,_,_,_),assert(statePlayer(P)),assert(stateBoard(Board)),assert(stateWinner(-1)).
+startGame(P,Depth,Board):-
+         initBoard(Board,_,_,_),assert(statePlayer(P)),assert(aiDepth(Depth)),assert(stateBoard(Board)),assert(stateWinner(-1)).
 %---needs to be checked-------
 %make a change to be different for human player(1) and Computer(2)
 %comp needs to be recursive and player needs to be called from ui.
@@ -152,17 +152,19 @@ play(2):-
     retract(stateBoard(Board)),retract(statePlayer(P)),
     possibleMoves(Board,Moves),
     ((Moves = [],getNextPlayerBoard(Board,Next),endGame(Next,New),changeTurns(P,P1),winnerB(New,P1,W),retract(stateWinner(_)),assert(stateWinner(W)));
-    ( chooseMove(Moves,M),executeMove(M,Board,NewBoard,ChangeTurn),
+    (aiDepth(Depth),alphabeta(_,Board,-1000,1000,M-_,_,Depth,1),executeMove(M,Board,NewBoard,ChangeTurn),
         ((ChangeTurn is 1,getNextPlayerBoard(NewBoard,Next),changeTurns(P,P1));(ChangeTurn is 0, P1 is P,Next = NewBoard)),
         assert(stateBoard(Next)),assert(statePlayer(P1)),P1 is 2,!,play(P1))).
 
-play(1,M):-
+play(1,M,NewBoard,CurrentPlayer,NextPlayer):-
     retract(stateBoard(Board)),retract(statePlayer(P)),
     possibleMoves(Board,Moves),
-     ((Moves = [],getNextPlayerBoard(Board,Next),endGame(Next,New),changeTurns(P,P1),winnerB(New,P1,W),retract(stateWinner(_)),assert(stateWinner(W)));
+     ((Moves = [],getNextPlayerBoard(Board,Next),endGame(Next,New),changeTurns(P,P1),winnerB(New,P1,Winner),retract(stateWinner(_)),assert(stateWinner(Winner)));
      ( executeMove(M,Board,NewBoard,ChangeTurn),
     ((ChangeTurn is 1,getNextPlayerBoard(NewBoard,Next),changeTurns(P,P1));(ChangeTurn is 0, P1 is P,Next = NewBoard)),
-        assert(stateBoard(Next)),assert(statePlayer(P1)))).
+        assert(stateBoard(Next)),assert(statePlayer(P1)))),CurrentPlayer=P,NextPlayer=P1,
+        (changeTurns is 1, play(2);
+        true).
 
 
 

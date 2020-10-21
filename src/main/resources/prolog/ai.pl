@@ -7,11 +7,13 @@ totalSeedsCount(48).
 
 % calculate the state heuristic by using the earner, weaker and escaper heuristics
 moveHeuristic(CurrentBoard,NextBoard,Res):-
-    earnerHeuristic(CurrentBoard,NextBoard,EarnerRes),
-    weakerHeuristic(CurrentBoard,NextBoard,WeakerRes),
-    escaperHeuristic(NextBoard,EscaperRes),
-
-    Res is (*(EarnerRes,1))+(*(WeakerRes,1))+(*(EscaperRes,1)).
+     statePlayer(P),P is 2,getCurrentPlayersScore(NextBoard,Res);
+     P is 1,getOtherPlayerScore(NextBoard,Res).
+%    earnerHeuristic(CurrentBoard,NextBoard,EarnerRes),
+%    weakerHeuristic(CurrentBoard,NextBoard,WeakerRes),
+%    escaperHeuristic(NextBoard,EscaperRes),
+%
+%    Res is (*(EarnerRes,1))+(*(WeakerRes,1))+(*(EscaperRes,1)).
 
 % the earner heuristic focus on the current player Lala's seed count (aka player score)
 % return the player's player Kala's seeds diff from the previous move.
@@ -60,7 +62,7 @@ countOtherPlayerHoleSeeds(Board,Res):-
 %first alpha beta accures when a player as more than one turn we treat it as a "single move"
 %and there for not changing depth,alpha and beta values.
 alphabeta(Ancestor,Board, _, _, _, Val, 0,CurrentPlayer) :- % max depth of search recieved
-  moveHeuristic(Ancestor, Board, CurrentPlayer,Val),!.
+  moveHeuristic(Ancestor, Board,Val),!.
 
 alphabeta(_,Board, Alpha, Beta, GoodPos, Val, Depth,CurrentPlayer) :-
    Depth > 0,
@@ -70,7 +72,7 @@ alphabeta(_,Board, Alpha, Beta, GoodPos, Val, Depth,CurrentPlayer) :-
 %if there are no possible moves
 alphabeta(Ancestor,Board, _, _, _, Val, Depth,CurrentPlayer) :-
   Depth > 0,
-  moveHeuristic(Ancestor, Board,CurrentPlayer, Val).
+  moveHeuristic(Ancestor, Board, Val).
 
 changePlayer(ChangePlayer,CurrentPlayer,NextPlayer):-
    ChangePlayer is 1,

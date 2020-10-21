@@ -25,6 +25,7 @@ public class Application {
     public static void main(String[] args)  {
         initProlog();
         SpringApplication.run(Application.class, args);
+
     }
 
     public static void initProlog(){
@@ -32,6 +33,7 @@ public class Application {
             prologEngine = PrologEngine.GetEngine();
             prologEngine.loadFiles(Utils.GetResourcePath(Arrays.asList(
                     "prolog/game_rules.pl","prolog/utils.pl","prolog/ai.pl")));
+            PrologEngine.StartGame(1,5);
         }catch (Exception ex){
             System.out.println("failed to init prolog");
             System.out.println(ex);
@@ -39,14 +41,13 @@ public class Application {
         }
     }
 
-
     @RequestMapping(value = "/play",method = RequestMethod.GET,produces =  MediaType.APPLICATION_JSON_VALUE)
     List<GameState> PlayMove(
             @RequestParam(value = "player",required = true) Integer player,
             @RequestParam(value = "move", required = true) Integer move) {
             //get new state from prolog engine
             System.out.println(String.format("player:%d move:%d",player,move));
-            return PrologEngine.PlayMove(move);
+            return Arrays.asList(PrologEngine.PlayMove(1,move));
     }
 
 }
