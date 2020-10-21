@@ -1,4 +1,7 @@
-:- dynamic(state/4).
+:- dynamic(stateBoard/1).
+:- dynamic(statePlayer/1).
+:- dynamic(stateWinner/1).
+
 %init the board with the default game values. ([P1_BOARD_VIEW,P2_BOARD_VIEW],F1,F2)
 %-------------Checked-------------------
 initBoard([4,4,4,4,4,4,0,4,4,4,4,4,4,0],[4,4,4,4,4,4,0,4,4,4,4,4,4,0],0,0).
@@ -140,24 +143,26 @@ chooseMove([M|_],Move):-
     Move is M.
 
 startGame(P):-
-         initBoard(Board,_,_,_),play(P,Board).
-
+         initBoard(Board,_,_,_),assert(statePlayer(P)),assert(stateBoard(Board)),assert(stateWinner(-1)).
+%---needs to be checked-------
 %make a change to be different for human player(1) and Computer(2)
 %comp needs to be recursive and player needs to be called from ui.
 %computer
-%-------------Checked--------------
-play(2,Board,W):-
+play(2):-
+    retract(stateBoard(Board)),retract(statePlayer(P)),
     possibleMoves(Board,Moves),
-    ((Moves = [],getNextPlayerBoard(Board,Next),endGame(Next,New),changeTurns(P,P1),winnerB(New,P1,W));
+    ((Moves = [],getNextPlayerBoard(Board,Next),endGame(Next,New),changeTurns(P,P1),winnerB(New,P1,W),retract(stateWinner(_)),assert(stateWinner(W)));
     ( chooseMove(Moves,M),executeMove(M,Board,NewBoard,ChangeTurn),
         ((ChangeTurn is 1,getNextPlayerBoard(NewBoard,Next),changeTurns(P,P1));(ChangeTurn is 0, P1 is P,Next = NewBoard)),
-        play(P1,Next,W))).
-%getMoveFromPlayer should be from ui.
-play(1,Board,W):-
-     ((Moves = [],getNextPlayerBoard(Board,Next),endGame(Next,New),changeTurns(P,P1),winnerB(New,P1,W));
-     (   getMoveFromPlayer(M),executeMove(M,Board,NewBoard,ChangeTurn),
+        assert(stateBoard(Next)),assert(statePlayer(P1)),P1 is 2,!,play(P1))).
+
+play(1,M):-
+    retract(stateBoard(Board)),retract(statePlayer(P)),
+    possibleMoves(Board,Moves),
+     ((Moves = [],getNextPlayerBoard(Board,Next),endGame(Next,New),changeTurns(P,P1),winnerB(New,P1,W),retract(stateWinner(_)),assert(stateWinner(W)));
+     ( executeMove(M,Board,NewBoard,ChangeTurn),
     ((ChangeTurn is 1,getNextPlayerBoard(NewBoard,Next),changeTurns(P,P1));(ChangeTurn is 0, P1 is P,Next = NewBoard)),
-        play(P1,Next,W))).
+        assert(stateBoard(Next)),assert(statePlayer(P1)))).
 
 
 
