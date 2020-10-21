@@ -7,13 +7,15 @@ initBoard([4,4,4,4,4,4,0,4,4,4,4,4,4,0],[4,4,4,4,4,4,0,4,4,4,4,4,4,0],0,0).
 board([G1,G2,G3,G4,G5,G6,F1,G8,G9,G10,G11,G12,G13,F2],[G8,G9,G10,G11,G12,G13,F2,G1,G2,G3,G4,G5,G6,F1],F1,F2).
 %get the winner of the game
 %-------------Checked-------------------
-winner(F1,F2,W):-
-    F1>F2,W is 1;
-    F2>F1,W is 2;
+winner(F1,F2,Current,W):-
+    F1>F2,Current is 1,W is 1;
+    F1>F2,Current is 2,W is 2;
+    F2>F1,Current is 1,W is 2;
+    F2>F1,Current is 2,W is 1;
     F1=F2,W is 0.
 
-winnerB(Board,W):-
-    board(Board,_,F1,F2),winner(F1,F2,W).
+winnerB(Board,Current,W):-
+    board(Board,_,F1,F2),winner(F1,F2,Current,W).
 %change the turn from P2 to P1
 %-------------Checked-------------------
 changeTurns(2,1).
@@ -45,6 +47,8 @@ getMoves([G|Gs],[M|Ms],T):-
     getMoves(Gs,[M|Ms],T1)).
 %return the results
 getMoves(_,[],7).
+%no more moves
+getMoves([0, 0, 0, 0, 0, 0, _, _, _, _, _, _, _, _],[],1).
 
 %calculate how many seeds needs to be added to each Guma on the board
 %N = the number of seeds in the current "guma"
@@ -120,7 +124,7 @@ endGame(Board,NewBoard):-
 %Move - the current move choosen by the alpha beta algorithm
 %Index - the current index
 %ChangeTurn = 0 player will have another turn ChangeTurn = 1 need to change player.
-%-----------checked-------
+%---needs to be checked-------
 executeMove(Move,Board,UpdatedBoard,ChangeTurn):-
     getAmountInIndex(Board,Move,Amnt),
     calcSeeds(Amnt,Board,Move,NewBoard),
@@ -136,17 +140,24 @@ chooseMove([M|_],Move):-
     Move is M.
 
 startGame(P):-
-         chooseFirstPlayer(P),initBoard(Board,_,_,_),assert(state(Board,Board,-1,1)),play(P,Board).
-%---needs to be checked-------
+         initBoard(Board,_,_,_),play(P,Board).
+
 %make a change to be different for human player(1) and Computer(2)
 %comp needs to be recursive and player needs to be called from ui.
-play(P,Board):-
+%computer
+%-------------Checked--------------
+play(2,Board,W):-
     possibleMoves(Board,Moves),
-    ((Moves = [],getNextPlayerBoard(Board,Next),endGame(Next,New),winnerB(New,W),retractall(state(_,_,_,_)),assert(state(Board,Board,W,W)));
+    ((Moves = [],getNextPlayerBoard(Board,Next),endGame(Next,New),changeTurns(P,P1),winnerB(New,P1,W));
     ( chooseMove(Moves,M),executeMove(M,Board,NewBoard,ChangeTurn),
-        ((ChangeTurn is 1,getNextPlayerBoard(NewBoard,Next),changeTurns(P,P1),
-          retractall(state(_,_,_,_)),assert(state(NewBoard,Next,-1,P1)),play(P1,Next));
-         (play(P,NewBoard))))).
+        ((ChangeTurn is 1,getNextPlayerBoard(NewBoard,Next),changeTurns(P,P1));(ChangeTurn is 0, P1 is P,Next = NewBoard)),
+        play(P1,Next,W))).
+%getMoveFromPlayer should be from ui.
+play(1,Board,W):-
+     ((Moves = [],getNextPlayerBoard(Board,Next),endGame(Next,New),changeTurns(P,P1),winnerB(New,P1,W));
+     (   getMoveFromPlayer(M),executeMove(M,Board,NewBoard,ChangeTurn),
+    ((ChangeTurn is 1,getNextPlayerBoard(NewBoard,Next),changeTurns(P,P1));(ChangeTurn is 0, P1 is P,Next = NewBoard)),
+        play(P1,Next,W))).
 
 
 
