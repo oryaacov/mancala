@@ -12,7 +12,6 @@ moveHeuristic(CurrentPlayer,_,NextBoard,Res):-
 %    earnerHeuristic(CurrentBoard,NextBoard,EarnerRes),
 %    weakerHeuristic(CurrentBoard,NextBoard,WeakerRes),
 %    escaperHeuristic(NextBoard,EscaperRes),
-%
 %    Res is (*(EarnerRes,1))+(*(WeakerRes,1))+(*(EscaperRes,1)).
 
 % the earner heuristic focus on the current player Lala's seed count (aka player score)
@@ -33,7 +32,6 @@ weakerHeuristic(CurrentBoard,NextBoard,Res):-
     (Temp>0,Res is Temp;
     Res is 0).
 
-
 % the escaper heuristic focus reducing the rivel chances of steeling the current player seeds.
 % count the river seeds and devided by the total seeds count
 escaperHeuristic(Board,Res):-
@@ -51,16 +49,15 @@ countOtherPlayerHoleSeeds(Board,Res):-
     Board = [_,_,_,_,_,_,_,H1,H2,H3,H4,H5,H6,_],
     Res is H1+H2+H3+H4+H5+H6.
 
-
-
 %the alpha beta algorithm
 %entry when depth is bigger than zero
 %Depth - is the search tree max depth
 %Board - is the current game state (the current move)
 %Alpha/Beta - the algoritm's alpha/beta value
-%BestMove,Value - the best move and it's value which found by the alphabeta algorithm (the result).
-%first alpha beta accures when a player as more than one turn we treat it as a "single move"
-%and there for not changing depth,alpha and beta values.
+%CurrentPlayer is added because that in Malncala game some moves are rewarding you
+%with an extra move, so the minimax algorithm which is a single move for each turn
+%algorithm needs to be extanded to support the new logic.
+%Ancestor is added in order to add extra calculation to the hueristic functions.
 alphabeta(Ancestor,Board, _, _, _, Val, 0,CurrentPlayer) :- % max depth of search recieved
   moveHeuristic(CurrentPlayer,Ancestor, Board,Val),!.
 
@@ -73,8 +70,6 @@ alphabeta(_,Board, Alpha, Beta, GoodPos, Val, Depth,CurrentPlayer) :-
 alphabeta(Ancestor,Board, _, _, _, Val, Depth,CurrentPlayer) :-
   Depth > 0,
   moveHeuristic(CurrentPlayer,Ancestor, Board, Val).
-
-
 
 boundedbest(Ancestor,Moves, Alpha, Beta, GoodPos, GoodVal,Depth,CurrentPlayer):-
    Depth>0,
@@ -118,4 +113,4 @@ CurrentPlayer is 1, Val > Val1, !
 ;
 CurrentPlayer is 0, Val < Val1, !.
 
-betterof( _, _, Move-NewBoard, Val, Move-NewBoard, Val,_):-!.                       % otherwise Pos 1 better
+betterof( _, _, Move-NewBoard, Val, Move-NewBoard, Val,_):-!.  

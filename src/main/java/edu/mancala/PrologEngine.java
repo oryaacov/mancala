@@ -92,17 +92,15 @@ public class PrologEngine {
         System.out.println(String.format("player:%d move:%d",player,move));
         //execute the move
         Map<String, Term> result=null;
-        if (moveQuery.hasSolution()) {
-            result = moveQuery.oneSolution();
-        }
+        result = moveQuery.oneSolution();
         if (result!=null) {
             Query winnerQuery = new Query("stateWinner", new Term[]{new Variable(WINNER)});
-            if (winnerQuery.hasSolution()) {
-                Map temp = (winnerQuery.oneSolution());
-                if (!temp.isEmpty() && temp.get(WINNER) != null) {
+
+                Map temp = winnerQuery.oneSolution();
+                if (temp!=null && !temp.isEmpty() && temp.get(WINNER) != null) {
                    result.put(WINNER, (Term) temp.get(WINNER));
                 }
-            }
+
             System.out.println(result);
             return MapResultsToGameState(result);
         }
