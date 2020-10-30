@@ -550,7 +550,7 @@ $(() => {
   const updateBoard = (newState) => {
     const playerRows = ["#row-1", "#row-2"];
     for (let playerIndex = 0; playerIndex < 2; playerIndex++) {
-      const marbels = playerIndex == 0 ? newState.p1Marbles : newState.p2Marbels;
+      const marbels = playerIndex == 0 ? newState.p1Marbles : newState.p2Marbles;
       for (let i = 0; i < 6; i++) {
         const currentMarblesCount = $(playerRows[playerIndex]).children().eq(i).children('.marble-layer').children().length;
         //add marbles
@@ -603,9 +603,8 @@ $(() => {
     }
   }
   const handleSuccessResponse = (res, i) => {
-
     setTimeout(() => {
-      if (!res || res.length <= 0 || i >= res.length) {
+      if (!res || res.length <= 0 || i >= res.length-1) {
         console.log("done", res, i);
         return
       }

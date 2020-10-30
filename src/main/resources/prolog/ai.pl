@@ -6,9 +6,9 @@ totalSeedsCount(48).
 
 
 % calculate the state heuristic by using the earner, weaker and escaper heuristics
-moveHeuristic(CurrentBoard,NextBoard,Res):-
-     statePlayer(P),P is 2,getCurrentPlayersScore(NextBoard,Res);
-     P is 1,getOtherPlayerScore(NextBoard,Res).
+moveHeuristic(CurrentPlayer,CurrentBoard,NextBoard,Res):-
+     CurrentPlayer is 2,getCurrentPlayersScore(NextBoard,Res);
+     CurrentPlayer is 1,getOtherPlayerScore(NextBoard,Res).
 %    earnerHeuristic(CurrentBoard,NextBoard,EarnerRes),
 %    weakerHeuristic(CurrentBoard,NextBoard,WeakerRes),
 %    escaperHeuristic(NextBoard,EscaperRes),
@@ -62,7 +62,7 @@ countOtherPlayerHoleSeeds(Board,Res):-
 %first alpha beta accures when a player as more than one turn we treat it as a "single move"
 %and there for not changing depth,alpha and beta values.
 alphabeta(Ancestor,Board, _, _, _, Val, 0,CurrentPlayer) :- % max depth of search recieved
-  moveHeuristic(Ancestor, Board,Val),!.
+  moveHeuristic(CurrentPlayer,Ancestor, Board,Val),!.
 
 alphabeta(_,Board, Alpha, Beta, GoodPos, Val, Depth,CurrentPlayer) :-
    Depth > 0,
@@ -72,18 +72,15 @@ alphabeta(_,Board, Alpha, Beta, GoodPos, Val, Depth,CurrentPlayer) :-
 %if there are no possible moves
 alphabeta(Ancestor,Board, _, _, _, Val, Depth,CurrentPlayer) :-
   Depth > 0,
-  moveHeuristic(Ancestor, Board, Val).
+  moveHeuristic(CurrentPlayer,Ancestor, Board, Val).
 
-changePlayer(ChangePlayer,CurrentPlayer,NextPlayer):-
-   ChangePlayer is 1,
-   Temp is 1-CurrentPlayer,
-   NextPlayer is abs(Temp).
+
 
 boundedbest(Ancestor,[Move | MoveList], Alpha, Beta, GoodPos, GoodVal,Depth,CurrentPlayer):-
    Depth>0,
    %print('player:'),print(CurrentPlayer),nl,
    executeMove( Move, Ancestor, NewBoard, ChangePlayer),!,
-   (changePlayer(ChangePlayer,CurrentPlayer,NextPlayer),
+   ((ChangePlayer is 1,changeTurns(CurrentPlayer,NextPlayer);NextPlayer=CurrentPlayer),
    Depth1 is Depth - 1,
    alphabeta(Ancestor,NewBoard, Alpha, Beta, _, Val,Depth1,NextPlayer),
   % print('(change player)before val:'),print(Val),nl,print('alpha:'),print(Alpha),nl,print('beta'),print(Beta),nl,

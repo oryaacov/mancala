@@ -66,8 +66,8 @@ public class PrologEngine {
         result.nextPlayer=values.get(NEXT_PLAYER).intValue();
         result.currentPlayer = values.get(CURRENT_PLAYER).intValue();
         Term[] board = values.get(BOARD).listToTermArray();
-        result.p1Marbles = getMarblesFromBoard(board,result.currentPlayer);
-        result.p2Marbles = getMarblesFromBoard(board,result.currentPlayer);
+        result.p1Marbles = getMarblesFromBoard(board,result.currentPlayer==1?1:2);
+        result.p2Marbles = getMarblesFromBoard(board,result.currentPlayer==1?2:1);
         return result;
     }
     private static List<Integer> getMarblesFromBoard(Term[] values,int currentPlayer){

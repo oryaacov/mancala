@@ -95,7 +95,7 @@ getOtherPlayerScore(Board,Sum):-
 %Index should be mod 14
 %--------------Checked------------------
 getAmountInIndex([B|_],1,Res):-
-    Res is B.
+    Res is B,!.
 getAmountInIndex([_|Board],Index,Res):-
     I is Index-1,getAmountInIndex(Board,I,Res).
 
@@ -148,13 +148,13 @@ startGame(P,Depth,Board):-
 %make a change to be different for human player(1) and Computer(2)
 %comp needs to be recursive and player needs to be called from ui.
 %computer
-play(2):-
+play(2,_,NewBoard,CurrentPlayer,NextPlayer):-
     retract(stateBoard(Board)),retract(statePlayer(P)),
     possibleMoves(Board,Moves),
     ((Moves = [],getNextPlayerBoard(Board,Next),endGame(Next,New),changeTurns(P,P1),winnerB(New,P1,W),retract(stateWinner(_)),assert(stateWinner(W)));
     (aiDepth(Depth),alphabeta(_,Board,-1000,1000,M-_,_,Depth,1),executeMove(M,Board,NewBoard,ChangeTurn),
         ((ChangeTurn is 1,getNextPlayerBoard(NewBoard,Next),changeTurns(P,P1));(ChangeTurn is 0, P1 is P,Next = NewBoard)),
-        assert(stateBoard(Next)),assert(statePlayer(P1)),P1 is 2,!,play(P1))).
+        assert(stateBoard(Next)),assert(statePlayer(P1))),CurrentPlayer=P,NextPlayer=P1).
 
 play(1,M,NewBoard,CurrentPlayer,NextPlayer):-
     retract(stateBoard(Board)),retract(statePlayer(P)),
@@ -163,7 +163,7 @@ play(1,M,NewBoard,CurrentPlayer,NextPlayer):-
      ( executeMove(M,Board,NewBoard,ChangeTurn),
     ((ChangeTurn is 1,getNextPlayerBoard(NewBoard,Next),changeTurns(P,P1));(ChangeTurn is 0, P1 is P,Next = NewBoard)),
         assert(stateBoard(Next)),assert(statePlayer(P1)))),CurrentPlayer=P,NextPlayer=P1,
-        (changeTurns is 1, play(2);
+        (changeTurns is 1;
         true).
 
 

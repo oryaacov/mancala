@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,7 +48,15 @@ public class Application {
             @RequestParam(value = "move", required = true) Integer move) {
             //get new state from prolog engine
             System.out.println(String.format("player:%d move:%d",player,move));
-            return Arrays.asList(PrologEngine.PlayMove(1,move));
+            List<GameState> result = new LinkedList<>();
+            GameState res ;
+            int nextPlayer = 1;
+            do{
+            res = PrologEngine.PlayMove(nextPlayer,move);
+            nextPlayer=res.nextPlayer;
+            result.add(res);
+            }while(res.nextPlayer==2);
+            return result;
     }
 
 }
