@@ -6,7 +6,7 @@ totalSeedsCount(48).
 
 
 % calculate the state heuristic by using the earner, weaker and escaper heuristics
-moveHeuristic(CurrentPlayer,CurrentBoard,NextBoard,Res):-
+moveHeuristic(CurrentPlayer,_,NextBoard,Res):-
      CurrentPlayer is 2,getCurrentPlayersScore(NextBoard,Res);
      CurrentPlayer is 1,getOtherPlayerScore(NextBoard,Res).
 %    earnerHeuristic(CurrentBoard,NextBoard,EarnerRes),
@@ -76,13 +76,16 @@ alphabeta(Ancestor,Board, _, _, _, Val, Depth,CurrentPlayer) :-
 
 
 
-boundedbest(Ancestor,[Move | MoveList], Alpha, Beta, GoodPos, GoodVal,Depth,CurrentPlayer):-
+boundedbest(Ancestor,Moves, Alpha, Beta, GoodPos, GoodVal,Depth,CurrentPlayer):-
    Depth>0,
+   NextPlayer=_,
+   (Moves=[],moveHeuristic(CurrentPlayer,Ancestor,Ancestor,Val);
+   Moves=[Move | MoveList],
    %print('player:'),print(CurrentPlayer),nl,
-   executeMove( Move, Ancestor, NewBoard, ChangePlayer),!,
+   executeMove( Move, Ancestor, NewBoard, ChangePlayer)),!,
    ((ChangePlayer is 1,changeTurns(CurrentPlayer,NextPlayer);NextPlayer=CurrentPlayer),
    Depth1 is Depth - 1,
-   alphabeta(Ancestor,NewBoard, Alpha, Beta, _, Val,Depth1,NextPlayer),
+   (alphabeta(Ancestor,NewBoard, Alpha, Beta, _, Val,Depth1,NextPlayer);true),
   % print('(change player)before val:'),print(Val),nl,print('alpha:'),print(Alpha),nl,print('beta'),print(Beta),nl,
    goodenough(Ancestor,MoveList, Alpha, Beta, Move-NewBoard, Val, GoodPos, GoodVal,Depth,CurrentPlayer,NextPlayer);
    %print('(change player)after val:'),print(Val),nl,print('alpha:'),print(Alpha),nl,print('beta'),print(Beta),nl,

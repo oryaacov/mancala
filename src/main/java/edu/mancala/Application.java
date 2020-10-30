@@ -2,7 +2,9 @@ package edu.mancala;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,7 +36,7 @@ public class Application {
             prologEngine = PrologEngine.GetEngine();
             prologEngine.loadFiles(Utils.GetResourcePath(Arrays.asList(
                     "prolog/game_rules.pl","prolog/utils.pl","prolog/ai.pl")));
-            PrologEngine.StartGame(1,5);
+            PrologEngine.StartGame(1,2);
         }catch (Exception ex){
             System.out.println("failed to init prolog");
             System.out.println(ex);
@@ -47,7 +49,6 @@ public class Application {
             @RequestParam(value = "player",required = true) Integer player,
             @RequestParam(value = "move", required = true) Integer move) {
             //get new state from prolog engine
-            System.out.println(String.format("player:%d move:%d",player,move));
             List<GameState> result = new LinkedList<>();
             GameState res ;
             int nextPlayer = 1;
@@ -55,8 +56,20 @@ public class Application {
             res = PrologEngine.PlayMove(nextPlayer,move);
             nextPlayer=res.nextPlayer;
             result.add(res);
-            }while(res.nextPlayer==2);
+            }while(res.nextPlayer==2 && res.winner<0);
             return result;
+    }
+    @RequestMapping(value = "/start",method = RequestMethod.GET,produces =  MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity StartNewGame(@RequestParam(value = "depth",required = true) Integer depth) throws Exception {
+        //get new state from prolog engine
+        if (depth>1) {
+            PrologEngine.StartGame(1, depth);
+            System.out.println(String.format("started new game with depth of %d",depth));
+        }else{
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+
     }
 
 }

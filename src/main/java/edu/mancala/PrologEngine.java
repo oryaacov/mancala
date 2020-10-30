@@ -89,6 +89,7 @@ public class PrologEngine {
                         new Variable( BOARD),new Variable(CURRENT_PLAYER),
                         new Variable(NEXT_PLAYER)
                 }));
+        System.out.println(String.format("player:%d move:%d",player,move));
         //execute the move
         Map<String, Term> result=null;
         if (moveQuery.hasSolution()) {

@@ -25,12 +25,18 @@
           </div>
           <div>
             <button id="instructions-button">How to Play</button>
-            <button id="start-over">Start Over</button>
+            <label>Difficulty:</label>
+            <select id="difficulty">
+              <option value="3">Easy</option>
+              <option selected value="5">Medium</option>
+              <option value="7">Hard</option>
+            </select>
+            <button id="start-over">Start</button>
           </div>
         </nav>
       </header>
       <main>
-        <div id="player-1">Player 1</div>
+        <div id="player-1">Computer</div>
 
         <div id="board">
           <div id="col-1">
@@ -53,10 +59,10 @@
           </div>
         </div>
 
-        <div id="player-2">Player 2</div>
+        <div id="player-2">Player</div>
       </main>
       <footer>
-        Created by Paige Boyer
+        Created by Or Yaacov and Lihi Rahamim
       </footer>
     </div>
     <div id="winning-modal">

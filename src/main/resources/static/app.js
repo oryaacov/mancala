@@ -5,7 +5,7 @@ $(() => {
   // Global variables =======================================
 
 
-  let totalMarbles = 24;
+  const totalMarbles = 24;
 
   // Player 1 total marbles
   let player1Marbles = totalMarbles;
@@ -430,9 +430,9 @@ $(() => {
 
   // === Picking first player ==================================
   const determineFirstPlayer = () => {
-    currentPlayer = 1;
-    enablePlayer1();
-    disablePlayer2();
+    currentPlayer = 2;
+    enablePlayer2();
+    disablePlayer1();
   }
   /*
   
@@ -502,10 +502,10 @@ $(() => {
     const $p = $('<p>').attr('id', 'winner');
     $('#winning-message').prepend($p);
     if (winner == 1) {
-      $p.text('Player 1 is the winner!');
+      $p.text('You are the winner!');
     }
     else if (winner == 2) {
-      $p.text('Player 2 is the winner!');
+      $p.text('You lost! Computer is the winner!');
     }
     else {
       $p.text('It\'s a tie, great job!');
@@ -518,13 +518,8 @@ $(() => {
 
   // === Winning modal window button functions =================
   const newRound = (event) => {
-    $('#winning-modal').css('visibility', 'hidden');
-    $('#winner').remove();
-    clupdateBoardearBoard();
-    createBoard();
-    player1Marbles = totalMarbles;
-    player2Marbles = totalMarbles;
-    determineFirstPlayer();
+    const depth=document.getElementById("difficulty").value;
+    startGame(depth);
   }
 
   const endRound = (event) => {
@@ -547,10 +542,18 @@ $(() => {
   }
   let currentState = JSON.parse(`{"p1Marbles":[3, 3, 4, 5, 6, 1, 10],"p2Marbels":[1, 3, 5, 3, 1, 0, 12],"nextPlayer":1,"winner":0}`)
 
+  const flipP2Order=(org)=>{
+    const res=[];
+    for (let i=5;i>=0;i--){
+        res.push(org[i]);
+    }
+    res.push(org[6]);
+    return res;
+  }
   const updateBoard = (newState) => {
     const playerRows = ["#row-1", "#row-2"];
     for (let playerIndex = 0; playerIndex < 2; playerIndex++) {
-      const marbels = playerIndex == 0 ? newState.p1Marbles : newState.p2Marbles;
+      const marbels = playerIndex == 0 ? flipP2Order(newState.p2Marbles):newState.p1Marbles;
       for (let i = 0; i < 6; i++) {
         const currentMarblesCount = $(playerRows[playerIndex]).children().eq(i).children('.marble-layer').children().length;
         //add marbles
@@ -576,9 +579,10 @@ $(() => {
       const currentPlayerScore = $(`#mancala-${playerIndex + 1}`).children('.mancala-layer').children().length;
       const playerScoreElement = $(`#mancala-${playerIndex + 1}`).children('.mancala-layer');
       if (currentPlayerScore > marbels[6]) {
-        for (let t = 0; t < currentPlayerScore - marbels[6]; t++) {
-          playerScoreElement[t].remove();
-        }
+//        for (let t = 0; t < currentPlayerScore - marbels[6]; t++) {
+//        console.log("test");
+//          playerScoreElement[t].remove();
+//        }
       } else if (currentPlayerScore < marbels[6]) {
 
         for (let t = 0; t < marbels[6] - currentPlayerScore; t++) {
@@ -590,13 +594,13 @@ $(() => {
 
 
     if (newState.nextPlayer == 1) {
-      enablePlayer1();
-      currentPlayer = 1;
-      disablePlayer2();
-    } else {
       enablePlayer2();
       currentPlayer = 2;
       disablePlayer1();
+    } else {
+      enablePlayer1();
+      currentPlayer = 1;
+      disablePlayer2();
     }
     if (newState.winner && newState.winner > 0) {
       tallyScore(newState.winner);
@@ -610,18 +614,19 @@ $(() => {
       }
 
       handleSuccessResponse(res, i + 1);
-    },  Math.random()*3000);
+    }, 1500 + Math.random()*2000);
     updateBoard(res[i]);
   }
-
+  let lastPlayed=+ new Date();
   const sendPlayerMove = (hole, player) => {
     var instance = this;
-    const data = {
-      player: player,
-      hole: hole
+    const now=+ new Date();
+    if ((now-lastPlayed)<1000){
+    return;
     }
+    lastPlayed=now;
     $.ajax({
-      url: `/play?player=${player}&move=${hole}`,
+      url: `/play?player=${1}&move=${hole+1}`,
       type: 'get',
       contentType: 'application/json',
       success: function (data) {
@@ -634,7 +639,36 @@ $(() => {
     });
 
   }
+const startGame = (depth) => {
+    var instance = this;
+    $.ajax({
+      url: `/start?depth=${depth}`,
+      type: 'get',
+      contentType: 'application/json',
+      success: function (data) {
+      console.log("started!",data);
+      $('#winning-modal').css('visibility', 'hidden');
+      $('#winner').remove();
+      $("#mancala-1").children('.mancala-layer').empty();
+      $("#mancala-2").children('.mancala-layer').empty();
+      layer1Marbles = totalMarbles;
+      player2Marbles = totalMarbles;
+      currentPlayer = null;
+      numMarbles = null;
+      startIndex = null;
+      endIndex = null;
+      endRow = null;
+      endRound();
+      createBoard();
+      determineFirstPlayer();
+      },
+      error: function (err) {
+        console.log(err);
+      },
 
+    });
+
+  }
   const createBoard = () => { // Creating initial mancala board setup
     $('#row-1').empty();
     $('#row-2').empty();
