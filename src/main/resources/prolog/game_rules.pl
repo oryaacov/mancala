@@ -155,7 +155,7 @@ startGame(P,Depth,Board):-
 
 play(2,_,NewBoard,CurrentPlayer,NextPlayer):-
     retract(stateBoard(Board)),retract(statePlayer(CurrentPlayer)),
-    aiDepth(Depth),alphabeta(_,Board,-1000,1000,M-_,_,Depth,1),executeMove(M,Board,NewBoard,ChangeTurn),
+    aiDepth(Depth),alphabeta(_,Board,-1000,1000,M-_,_,Depth,1),print('AI move:'),print(M),nl,executeMove(M,Board,NewBoard,ChangeTurn),
         ((isBoardEmpty(NewBoard),getNextPlayerBoard(Board,Next),endGame(Next,New),changeTurns(CurrentPlayer,NextPlayer),winnerB(New,NextPlayer,W),retract(stateWinner(_)),assert(stateWinner(W)));
         ((ChangeTurn is 1,getNextPlayerBoard(NewBoard,Next),changeTurns(CurrentPlayer,NextPlayer));(ChangeTurn is 0, NextPlayer is CurrentPlayer,Next = NewBoard))),
         assert(stateBoard(Next)),assert(statePlayer(NextPlayer)).
