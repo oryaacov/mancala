@@ -51,7 +51,7 @@ public class Application {
             //get new state from prolog engine
             List<GameState> result = new LinkedList<>();
             GameState res ;
-            int nextPlayer = 1;
+            int nextPlayer = 1;//human
             do{
             res = PrologEngine.PlayMove(nextPlayer,move);
             nextPlayer=res.nextPlayer;

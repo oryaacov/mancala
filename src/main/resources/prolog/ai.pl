@@ -74,26 +74,25 @@ alphabeta(Ancestor,Board, _, _, _, Val, Depth,CurrentPlayer) :-
 boundedbest(Ancestor,Moves, Alpha, Beta, GoodPos, GoodVal,Depth,CurrentPlayer):-
    Depth>0,
    NextPlayer=_,
-   (Moves=[],moveHeuristic(CurrentPlayer,Ancestor,Ancestor,Val);
+   Val=_,
+   Depth1=_,
+   (Moves=[],moveHeuristic(CurrentPlayer,Ancestor,Ancestor,Val),Depth1 is Depth - 1;
    Moves=[Move | MoveList],
    %print('player:'),print(CurrentPlayer),nl,
-   executeMove( Move, Ancestor, NewBoard, ChangePlayer)),!,
-   ((ChangePlayer is 1,changeTurns(CurrentPlayer,NextPlayer);NextPlayer=CurrentPlayer),
-   Depth1 is Depth - 1,
-   (alphabeta(Ancestor,NewBoard, Alpha, Beta, _, Val,Depth1,NextPlayer);true),
+   executeMove( Move, Ancestor, NewBoard, ChangePlayer),!,
+   (ChangePlayer is 1,changeTurns(CurrentPlayer,NextPlayer),Depth1 is Depth - 1;
+   NextPlayer=CurrentPlayer,Depth1 is Depth),
+   alphabeta(Ancestor,NewBoard, Alpha, Beta, _, Val,Depth1,NextPlayer)),
   % print('(change player)before val:'),print(Val),nl,print('alpha:'),print(Alpha),nl,print('beta'),print(Beta),nl,
-   goodenough(Ancestor,MoveList, Alpha, Beta, Move-NewBoard, Val, GoodPos, GoodVal,Depth,CurrentPlayer,NextPlayer);
+   goodenough(Ancestor,MoveList, Alpha, Beta, Move-NewBoard, Val, GoodPos, GoodVal,Depth,CurrentPlayer,NextPlayer).
    %print('(change player)after val:'),print(Val),nl,print('alpha:'),print(Alpha),nl,print('beta'),print(Beta),nl,
-   alphabeta(Ancestor,NewBoard, Alpha, Beta, _, Val,Depth,CurrentPlayer),!,
-   %print('(same player)before val:'),print(Val),nl,print('alpha:'),print(Alpha),nl,print('beta'),print(Beta),nl,
-   goodenough(Ancestor,MoveList, Alpha, Beta, Move-NewBoard, Val, GoodPos, GoodVal,Depth,CurrentPlayer,NextPlayer)).
-   %print('(same player)after val:'),print(Val),nl,print('alpha:'),print(Alpha),nl,print('beta'),print(Beta),nl.
+
 
 goodenough(_,[],_,_,Move-NewBoard, Val, Move-NewBoard, Val,_,_,_):-!.
 
 goodenough(_,_, Alpha, Beta, Move-NewBoard, Val, Move-NewBoard, Val,_,CurrentPlayer,_) :-
   CurrentPlayer is 1, Val > Beta, !;
-  CurrentPlayer is 0, Val < Alpha, !.
+  Val < Alpha, !.
 
 goodenough(Ancestor,PosList, Alpha, Beta, Move-NewBoard, Val, GoodPos, GoodVal,Depth,CurrentPlayer,_) :-
    newbounds( Alpha, Beta, Move, Val, NewAlpha, NewBeta,CurrentPlayer),
@@ -101,16 +100,16 @@ goodenough(Ancestor,PosList, Alpha, Beta, Move-NewBoard, Val, GoodPos, GoodVal,D
    betterof( Move-NewBoard, Val, Pos1, Val1, GoodPos, GoodVal,CurrentPlayer),!.
 
 newbounds( Alpha, Beta, _, Val, Val, Beta,CurrentPlayer)  :-
-CurrentPlayer is 1, Val > Alpha,!.
+    CurrentPlayer is 1, Val > Alpha,!.
 
-newbounds( Alpha, Beta,_, Val, Alpha, Val,CurrentPlayer)  :-
-CurrentPlayer is 0, Val < Beta, !.
+newbounds( Alpha, Beta,_, Val, Alpha, Val,_)  :-
+ Val < Beta, !.
 
 newbounds( Alpha, Beta, _, _, Alpha, Beta,_).
 
 betterof( Move-NewBoard, Val, _, Val1, Move-NewBoard, Val,CurrentPlayer):-
 CurrentPlayer is 1, Val > Val1, !
 ;
-CurrentPlayer is 0, Val < Val1, !.
+Val < Val1, !.
 
-betterof( _, _, Move-NewBoard, Val, Move-NewBoard, Val,_):-!.  
+betterof( _, _, Move-NewBoard, Val, Move-NewBoard, Val,_):-!.

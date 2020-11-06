@@ -11,6 +11,7 @@ board([G1,G2,G3,G4,G5,G6,F1,G8,G9,G10,G11,G12,G13,F2],[G8,G9,G10,G11,G12,G13,F2,
 
 %get the winner of the game
 winner(F1,F2,Current,W):-
+    print('F1'),print(F1),print('F2'),print(F2),
     F1>F2,Current is 1,W is 1;
     F1>F2,Current is 2,W is 2;
     F2>F1,Current is 1,W is 2;
@@ -66,7 +67,7 @@ calcSeeds(N,Board,Index,NewBoard):-
 %add the seeds from the current "guma" into all of the others
 %Add2All = How many to add to all the "Gumot".
 %AddOne2 = Add one seed to "Gumot" 1 to AddOne2 index.
-addSeeds(Add2All,AddOne2,Add2Sub,[G|Gs],Index,[NG|NGs]):-
+    addSeeds(Add2All,AddOne2,Add2Sub,[G|Gs],Index,[NG|NGs]):-
     ((Add2Sub > 0,Index = 1,NG is Add2All+1);
     (Add2Sub < 0,Index = 1,NG is Add2All);
     (Add2Sub > 0,AddOne2 > 0,Index < 1,NG is G+Add2All+1+1);
@@ -130,8 +131,11 @@ endGame(Board,NewBoard):-
 %ChangeTurn = 0 player will have another turn ChangeTurn = 1 need to change player.
 executeMove(Move,Board,UpdatedBoard,ChangeTurn):-
     getAmountInIndex(Board,Move,Amnt),
+    %print('amnt:'),print(Amnt),nl,print('move'),print(Move),nl,print('board'),print(Board),nl,
     calcSeeds(Amnt,Board,Move,NewBoard),!,
+    %another turn
     ((S is Move+Amnt,LastIndex is S mod 14,LastIndex = 7, ChangeTurn is 0,UpdatedBoard = NewBoard,!);
+    %steal
     (S is Move+Amnt,LastIndex is S mod 14,getAmountInIndex(NewBoard,LastIndex,1),getAmountInIndex(Board,LastIndex,0),
          ChangeTurn is 1,getAmountInIndex(Board,14-LastIndex,A), zeroInIndex(NewBoard,14-LastIndex,NB),updateFinal(NB,(A+1),7,NB1),zeroInIndex(NB1,LastIndex,UpdatedBoard),!);
     (ChangeTurn is 1,UpdatedBoard = NewBoard,!)).
@@ -167,5 +171,4 @@ play(1,M,NewBoard,CurrentPlayer,NextPlayer):-
     winnerB(New,NextPlayer,W),retract(stateWinner(_)),assert(stateWinner(W)));
     ((ChangeTurn is 1, getNextPlayerBoard(NewBoard,Next),changeTurns(CurrentPlayer,NextPlayer))
     ;(ChangeTurn is 0, NextPlayer is CurrentPlayer,Next = NewBoard))),
-        assert(stateBoard(Next)),assert(statePlayer(NextPlayer)),
-        (ChangeTurn is 1;true).
+        assert(stateBoard(Next)),assert(statePlayer(NextPlayer)).

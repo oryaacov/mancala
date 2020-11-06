@@ -89,15 +89,17 @@ public class PrologEngine {
                         new Variable( BOARD),new Variable(CURRENT_PLAYER),
                         new Variable(NEXT_PLAYER)
                 }));
-        System.out.println(String.format("player:%d move:%d",player,move));
         //execute the move
         Map<String, Term> result=null;
         result = moveQuery.oneSolution();
         if (result!=null) {
             Query winnerQuery = new Query("stateWinner", new Term[]{new Variable(WINNER)});
+            long startTime = System.currentTimeMillis();
+            Map temp = winnerQuery.oneSolution();
+            long estimatedTime = System.currentTimeMillis() - startTime;
+            System.out.println(String.format("player:%d played move:%d ",player,player==2?0:move));
 
-                Map temp = winnerQuery.oneSolution();
-                if (temp!=null && !temp.isEmpty() && temp.get(WINNER) != null) {
+            if (temp!=null && !temp.isEmpty() && temp.get(WINNER) != null) {
                    result.put(WINNER, (Term) temp.get(WINNER));
                 }
 
